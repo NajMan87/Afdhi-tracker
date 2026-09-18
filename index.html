@@ -1,0 +1,1539 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#221A4B">
+<title>Afdhi's day</title>
+
+<!-- Firebase (classic scripts so the file also works when opened directly from disk) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<style>
+:root{
+  --night:#221A4B;
+  --gold:#F2A20C;
+  --palm:#1F7A54;
+  --sky:#2C6E9B;
+  --dusk:#6D3FA8;
+  --sand:#FFF9EE;
+  --paper:#FFFFFF;
+  --clay:#E7DCC6;
+  --ink:#2B2A33;
+  --mute:#7C7589;
+  --spine-x:66px;
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--sand);color:var(--ink);
+  font:16px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  -webkit-text-size-adjust:100%;padding:0 0 48px;
+}
+h1,h2,h3,.ff{font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif}
+.app{max-width:640px;margin:0 auto;padding:0 14px}
+.hide{display:none!important}
+
+/* ---------- header ---------- */
+.top{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  background:var(--night);color:#fff;margin:0 -14px;padding:16px 18px 18px;
+  border-radius:0 0 20px 20px;
+}
+.titles{flex:1 1 180px;min-width:0}
+h1{margin:0;font-size:22px;font-weight:700;letter-spacing:.2px}
+.tally{margin:3px 0 0;font-size:13.5px;color:#C9C2E4}
+.tally b{color:var(--gold);font-weight:700}
+.datenav{display:flex;align-items:center;gap:4px}
+.datenav button{
+  background:rgba(255,255,255,.12);color:#fff;border:0;border-radius:10px;
+  min-width:40px;height:40px;font-size:20px;line-height:1;cursor:pointer;
+}
+.datenav button:hover{background:rgba(255,255,255,.22)}
+.datewrap{position:relative}
+.datewrap .date{
+  font-family:"Trebuchet MS",sans-serif;font-size:15px;font-weight:700;letter-spacing:.3px;
+  padding:0 12px;min-width:112px;height:40px;background:rgba(255,255,255,.12);
+  border:0;border-radius:10px;color:#fff;cursor:pointer;
+}
+.datewrap input[type=date]{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+
+/* sky arc (child mode) */
+.sky{width:100%;margin:2px 0 0;display:block}
+.sky .arcline{fill:none;stroke:rgba(255,255,255,.22);stroke-width:3;stroke-linecap:round}
+.sky .arcfill{fill:none;stroke:var(--gold);stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .5s ease}
+.sky .sun{transition:transform .5s ease}
+.skyline{display:flex;align-items:baseline;justify-content:space-between;color:#C9C2E4;font-size:12.5px;margin-top:-4px}
+
+/* ---------- toolbar ---------- */
+.bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:14px 2px 6px}
+.bar button{
+  font:inherit;font-size:13.5px;background:var(--paper);border:1px solid var(--clay);
+  color:var(--ink);border-radius:999px;padding:7px 14px;cursor:pointer;
+}
+.bar button:hover{border-color:var(--sky);color:var(--sky)}
+.bar button.on{background:var(--night);border-color:var(--night);color:#fff}
+.saveind{margin-left:auto;font-size:12.5px;color:var(--mute);white-space:nowrap}
+.dot-live{color:var(--palm)}
+.dot-off{color:#B0342C}
+
+/* ---------- timeline ---------- */
+.tlwrap{position:relative;margin:6px 0 0;padding:6px 0 0}
+.timeline{list-style:none;margin:0;padding:0}
+.tlwrap::before{
+  content:"";position:absolute;left:calc(var(--spine-x) - 2px);top:14px;bottom:14px;
+  width:4px;border-radius:4px;background:var(--clay);
+}
+#spineFill{
+  position:absolute;left:calc(var(--spine-x) - 2px);top:14px;width:4px;border-radius:4px;
+  background:linear-gradient(to bottom,var(--gold),var(--sky) 45%,var(--dusk) 78%,var(--night));
+  height:0;transition:height .45s ease;
+}
+.row{position:relative;display:flex;align-items:stretch;gap:6px;margin:0 0 6px}
+.hit{
+  flex:1 1 auto;min-width:0;display:grid;grid-template-columns:52px 28px 1fr;align-items:center;
+  background:transparent;border:0;padding:9px 0;font:inherit;color:inherit;text-align:left;
+  cursor:pointer;border-radius:10px;
+}
+.hit:hover{background:rgba(44,110,155,.06)}
+.hit:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+.at{font-size:12.5px;color:var(--mute);font-variant-numeric:tabular-nums}
+.dot{
+  width:20px;height:20px;border-radius:50%;background:var(--paper);border:2px solid var(--clay);
+  display:grid;place-items:center;font-size:12px;color:#fff;line-height:1;
+}
+.row.prayer .dot{border-color:var(--gold)}
+.row.done .dot{background:var(--palm);border-color:var(--palm)}
+.row.prayer.done .dot{background:var(--gold);border-color:var(--gold);color:var(--night)}
+.name{padding-left:12px;font-size:15.5px;min-width:0}
+.name .sub{display:block;font-size:12.5px;color:var(--mute)}
+.row.done .name{color:var(--mute)}
+.row.done .name .main{text-decoration:line-through;text-decoration-color:var(--clay)}
+.extras{display:flex;align-items:center;gap:6px;padding-left:4px}
+.chip{
+  font:inherit;font-size:13px;font-variant-numeric:tabular-nums;background:var(--paper);
+  border:1px solid var(--clay);border-radius:999px;padding:5px 10px;color:var(--ink);
+  cursor:pointer;white-space:nowrap;
+}
+.chip.set{border-color:var(--palm);color:var(--palm);font-weight:700}
+.chip.plain{cursor:default}
+.iconbtn{
+  background:transparent;border:1px solid transparent;border-radius:8px;
+  width:34px;height:34px;font-size:15px;cursor:pointer;color:var(--mute);
+}
+.iconbtn:hover{border-color:var(--clay);color:var(--night)}
+.iconbtn.danger:hover{border-color:#B0342C;color:#B0342C}
+
+/* ---------- child mode ---------- */
+body.child .tlwrap::before,body.child #spineFill{display:none}
+body.child .row{
+  background:var(--paper);border:2px solid var(--clay);border-radius:18px;
+  margin:0 0 10px;box-shadow:0 1px 0 rgba(34,26,75,.04);
+}
+body.child .hit{grid-template-columns:62px 1fr;padding:14px 10px;min-height:68px}
+body.child .at{display:none}
+body.child .dot{
+  width:46px;height:46px;font-size:22px;border-width:3px;background:#FFF6E2;
+  color:var(--night);
+}
+body.child .row.done{border-color:var(--palm);background:#F1FAF4}
+body.child .row.done .dot{background:var(--palm);border-color:var(--palm);color:#fff;font-size:24px}
+body.child .row.prayer .dot{background:#FFF1D2}
+body.child .row.prayer.done .dot{background:var(--gold);border-color:var(--gold);color:var(--night)}
+body.child .name{font-size:18px;font-weight:600;padding-left:6px}
+body.child .name .sub{font-size:13px;font-weight:400}
+body.child .row.done .name .main{text-decoration:none}
+body.child .extras{padding-right:8px}
+
+.jar{
+  display:flex;align-items:center;gap:10px;background:var(--paper);border:1px solid var(--clay);
+  border-radius:16px;padding:12px 14px;margin:14px 0 0;
+}
+.jar .stars{font-size:19px;letter-spacing:2px;line-height:1}
+.jar .jt{font-size:13.5px;color:var(--mute)}
+.jar .jt b{display:block;font-family:"Trebuchet MS",sans-serif;font-size:16px;color:var(--ink)}
+.jar .solved{margin-left:auto;text-align:right;font-size:13px;color:var(--mute)}
+.jar .solved b{display:block;font-family:"Trebuchet MS",sans-serif;font-size:19px;color:var(--dusk)}
+
+.addrow{
+  display:block;width:100%;margin:2px 0 0;padding:12px 0 12px calc(var(--spine-x) + 14px);
+  background:transparent;border:0;border-top:1px dashed var(--clay);
+  font:inherit;font-size:14.5px;color:var(--sky);text-align:left;cursor:pointer;
+}
+.addrow:hover{color:var(--night)}
+.done-note{margin:10px 0 0;padding:12px 14px;border-radius:var(--radius);
+  background:rgba(242,162,12,.16);color:#7A5206;font-size:14.5px}
+
+/* ---------- day note ---------- */
+.note{margin:16px 0 0}
+.note label{display:block;font-size:13px;color:var(--mute);margin:0 0 5px}
+.note textarea{
+  width:100%;min-height:62px;resize:vertical;font:inherit;font-size:14.5px;padding:10px 12px;
+  border:1px solid var(--clay);border-radius:var(--radius);background:var(--paper);color:var(--ink);
+}
+.note textarea:focus{outline:2px solid var(--sky);outline-offset:1px;border-color:var(--sky)}
+
+/* ---------- week strip ---------- */
+.week{margin:20px 0 0}
+.week h2{font-size:14px;margin:0 0 8px;color:var(--mute);font-weight:600}
+.wdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.wday{background:var(--paper);border:1px solid var(--clay);border-radius:12px;padding:8px 2px 9px;
+  text-align:center;cursor:pointer;font:inherit}
+.wday:hover{border-color:var(--sky)}
+.wday.sel{border-color:var(--night);box-shadow:inset 0 0 0 1px var(--night)}
+.wday .d{display:block;font-size:11px;color:var(--mute)}
+.wday .n{display:block;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.ring{width:22px;height:22px;margin:5px auto 0;border-radius:50%;
+  background:conic-gradient(var(--palm) var(--p,0deg),var(--clay) 0);display:grid;place-items:center}
+.ring::after{content:"";width:14px;height:14px;border-radius:50%;background:var(--paper)}
+.ring.full{background:var(--gold)}
+.ring.full::after{content:"★";width:auto;height:auto;background:none;font-size:13px;color:var(--night)}
+
+/* ---------- overlays ---------- */
+.ov{position:fixed;inset:0;background:rgba(34,26,75,.45);display:none;z-index:40;
+  align-items:flex-end;justify-content:center}
+.ov.open{display:flex}
+.sheet{background:var(--sand);width:100%;max-width:640px;max-height:88vh;overflow:auto;
+  border-radius:20px 20px 0 0;padding:18px 18px 26px}
+@media(min-width:680px){.ov{align-items:center;padding:20px}.sheet{border-radius:20px}}
+.sheet h2{margin:0 0 14px;font-size:18px}
+.field{margin:0 0 12px}
+.field label{display:block;font-size:13px;color:var(--mute);margin:0 0 5px}
+.field input,.field select,.field textarea{
+  width:100%;font:inherit;font-size:15px;padding:10px 12px;background:var(--paper);
+  border:1px solid var(--clay);border-radius:12px;color:var(--ink);
+}
+.field textarea{min-height:110px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--sky);outline-offset:1px}
+.acts{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.btn{font:inherit;font-size:14.5px;padding:10px 18px;border-radius:12px;cursor:pointer;
+  border:1px solid var(--clay);background:var(--paper);color:var(--ink)}
+.btn.primary{background:var(--night);border-color:var(--night);color:#fff;font-weight:700}
+.btn.danger{border-color:#B0342C;color:#B0342C}
+.btn:hover{filter:brightness(.96)}
+.hint{font-size:12.5px;color:var(--mute);margin:-4px 0 12px}
+
+/* riddle card */
+#riddleOv .sheet{background:linear-gradient(170deg,#2B2260,#3B2A7A);color:#fff;text-align:center}
+.rid-tag{font-size:12.5px;color:#BDB2E8;letter-spacing:.4px}
+.rid-q{font-family:"Trebuchet MS",sans-serif;font-size:22px;line-height:1.35;margin:10px 0 18px}
+.rid-a{font-family:"Trebuchet MS",sans-serif;font-size:26px;color:var(--gold);margin:6px 0 18px;min-height:34px}
+.rid-done{font-size:14px;color:#BDB2E8;margin:14px 0 0}
+#riddleOv .btn{background:rgba(255,255,255,.14);border-color:transparent;color:#fff}
+#riddleOv .btn.primary{background:var(--gold);color:var(--night);border-color:var(--gold)}
+
+/* pin */
+.pinbox{display:flex;justify-content:center;margin:6px 0 4px}
+.pinbox input{
+  width:170px;text-align:center;font-size:30px;letter-spacing:14px;font-family:"Trebuchet MS",sans-serif;
+  padding:12px 0 12px 14px;border:1px solid var(--clay);border-radius:14px;background:var(--paper);
+}
+.pinmsg{text-align:center;font-size:13px;color:#B0342C;min-height:19px;margin:6px 0 0}
+
+/* history */
+.mnav{display:flex;align-items:center;justify-content:space-between;margin:0 0 10px}
+.mnav button{background:var(--paper);border:1px solid var(--clay);border-radius:10px;width:38px;height:38px;
+  font-size:18px;cursor:pointer}
+.mnav span{font-family:"Trebuchet MS",sans-serif;font-weight:700}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal .hd{text-align:center;font-size:11px;color:var(--mute);padding:2px 0}
+.cell{aspect-ratio:1;border:1px solid var(--clay);border-radius:10px;background:var(--paper);font:inherit;
+  font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;padding:0;color:var(--ink)}
+.cell.empty{border:0;background:transparent;cursor:default}
+.cell.today{border-color:var(--night);border-width:2px}
+.cell .bar2{width:70%;height:4px;border-radius:4px;background:var(--clay);overflow:hidden}
+.cell .bar2 i{display:block;height:100%;background:var(--palm)}
+.cell.full{background:rgba(242,162,12,.18);border-color:var(--gold)}
+.legend{font-size:12.5px;color:var(--mute);margin:12px 0 0}
+.stat{display:flex;gap:18px;margin:14px 0 0;flex-wrap:wrap}
+.stat div{font-size:13px;color:var(--mute)}
+.stat b{display:block;font-family:"Trebuchet MS",sans-serif;font-size:20px;color:var(--ink)}
+.status{font-size:13px;padding:10px 12px;border-radius:12px;background:var(--paper);
+  border:1px solid var(--clay);margin:0 0 12px}
+
+/* ---------- groups & priority ---------- */
+.tlwrap::before,#spineFill{display:none}
+.grphead{
+  display:flex;align-items:baseline;gap:8px;list-style:none;
+  margin:18px 0 8px;padding:0 0 6px;border-bottom:1px solid var(--clay);
+}
+.grphead:first-child{margin-top:4px}
+.grphead .gl{font-family:"Trebuchet MS",sans-serif;font-size:14.5px;font-weight:700;color:var(--night)}
+.grphead .gc{margin-left:auto;font-size:12.5px;color:var(--mute);font-variant-numeric:tabular-nums}
+.grphead.full .gc{color:var(--palm);font-weight:700}
+body.child .grphead{margin:20px 0 10px}
+body.child .grphead .gl{font-size:17px}
+.pill{
+  display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.3px;
+  padding:1px 7px;border-radius:999px;margin-left:8px;vertical-align:1px;
+}
+.p-must{background:rgba(242,162,12,.22);color:#8A5A04}
+.p-bonus{background:rgba(124,117,137,.16);color:var(--mute)}
+.row.pri-bonus .name .main{color:var(--mute)}
+
+/* ---------- reports ---------- */
+.rtabs{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rhead{margin:0 0 12px}
+.rhead h3{font-family:"Trebuchet MS",sans-serif;margin:0;font-size:19px;color:var(--night)}
+.rhead p{margin:3px 0 0;font-size:12.5px;color:var(--mute)}
+.rwrap{overflow-x:auto}
+.rtable{
+  width:100%;border-collapse:collapse;font-size:12px;background:#fff;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;
+}
+.rtable th,.rtable td{border:1px solid #D9CFBD;padding:5px 6px;text-align:center;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.rtable th.item,.rtable td.item{text-align:left;white-space:normal;min-width:132px}
+.rtable thead th{background:#F59E0B;color:#fff;font-weight:700}
+.rtable tr.grp td{background:#E7EEE6;color:#14532D;font-weight:700;text-align:left}
+.rtable tr.sub td{background:#B45309;color:#fff;font-weight:700}
+.rtable tr.tot td{background:#92400E;color:#fff;font-weight:700}
+.rtable .yes{color:#14532D;font-weight:700}
+.rtable .no{color:#B9B2A4}
+.rtable.month th,.rtable.month td{padding:2px 1px;font-size:9px}
+.rtable.month td.item,.rtable.month th.item{font-size:10px;min-width:118px}
+.rsign{margin:16px 0 0;font-size:12px;color:var(--ink);display:flex;gap:26px;flex-wrap:wrap}
+.rsign span{border-bottom:1px solid var(--clay);flex:1 1 200px;padding:14px 0 2px}
+.rsum{display:flex;gap:20px;flex-wrap:wrap;margin:12px 0 0}
+.rsum div{font-size:12px;color:var(--mute)}
+.rsum b{display:block;font-family:"Trebuchet MS",sans-serif;font-size:17px;color:var(--ink)}
+#reportOv .sheet{max-width:900px}
+
+@media print{
+  body{background:#fff;padding:0}
+  .app{display:none!important}
+  .ov{display:none!important}
+  .ov#reportOv.open{display:block!important;position:static;background:#fff;padding:0}
+  #reportOv .sheet{max-width:none;max-height:none;overflow:visible;border-radius:0;
+    padding:0;background:#fff;box-shadow:none}
+  .noprint{display:none!important}
+  .rwrap{overflow:visible}
+  .rtable tr{page-break-inside:avoid}
+  .rhead h3{font-size:17px}
+}
+
+@media(max-width:400px){
+  :root{--spine-x:58px}
+  .hit{grid-template-columns:44px 28px 1fr}
+  body.child .hit{grid-template-columns:58px 1fr}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body class="child">
+<div class="app">
+
+  <header class="top">
+    <div class="titles">
+      <h1 id="title">Afdhi's day</h1>
+      <p class="tally" id="tally"></p>
+    </div>
+    <div class="datenav" id="dateNav">
+      <button id="prevBtn" aria-label="Previous day">‹</button>
+      <span class="datewrap">
+        <button class="date" id="dateLabel">--/--/----</button>
+        <input type="date" id="dateInput" aria-label="Pick a date">
+      </span>
+      <button id="nextBtn" aria-label="Next day">›</button>
+    </div>
+    <div id="skyWrap" style="flex:1 1 100%">
+      <svg class="sky" viewBox="0 0 300 118" aria-hidden="true">
+        <path class="arcline" d="M18,104 A132,84 0 0 1 282,104"></path>
+        <path class="arcfill" id="arcFill" d="M18,104 A132,84 0 0 1 282,104"></path>
+        <g class="sun" id="sunG">
+          <circle r="13" fill="#F2A20C"></circle>
+          <circle r="19" fill="#F2A20C" opacity=".22"></circle>
+        </g>
+      </svg>
+      <div class="skyline"><span>morning</span><span id="skyMid"></span><span>night</span></div>
+    </div>
+  </header>
+
+  <div class="bar">
+    <button id="modeBtn"></button>
+    <button id="todayBtn" class="pOnly">Today</button>
+    <button id="editBtn" class="pOnly">Edit list</button>
+    <button id="histBtn" class="pOnly">History</button>
+    <button id="repBtn">Reports</button>
+    <button id="dataBtn" class="pOnly">Settings</button>
+    <span class="saveind" id="saveInd"></span>
+  </div>
+
+  <div class="tlwrap">
+    <div id="spineFill"></div>
+    <ol class="timeline" id="timeline"></ol>
+  </div>
+  <button class="addrow pOnly" id="addBtn">+ Add something to track</button>
+  <div id="dayDone"></div>
+
+  <div class="jar cOnly" id="jar"></div>
+
+  <section class="note pOnly">
+    <label for="dayNote">Note for the day</label>
+    <textarea id="dayNote" placeholder="Anything worth remembering — a good effort, a missed dictation, a visitor."></textarea>
+  </section>
+
+  <section class="week">
+    <h2 id="weekHead">Last 7 days</h2>
+    <div class="wdays" id="wdays"></div>
+  </section>
+</div>
+
+<!-- riddle -->
+<div class="ov" id="riddleOv">
+  <div class="sheet" role="dialog" aria-modal="true">
+    <p class="rid-tag" id="ridTag"></p>
+    <p class="rid-q" id="ridQ"></p>
+    <p class="rid-a" id="ridA"></p>
+    <div class="acts" style="justify-content:center" id="ridStage1">
+      <button class="btn" id="ridSkip">Skip</button>
+      <button class="btn primary" id="ridShow">Show the answer</button>
+    </div>
+    <div class="acts hide" style="justify-content:center" id="ridStage2">
+      <button class="btn" id="ridMissed">Tricky one</button>
+      <button class="btn primary" id="ridGot">I got it</button>
+    </div>
+    <p class="rid-done" id="ridCount"></p>
+  </div>
+</div>
+
+<!-- pin -->
+<div class="ov" id="pinOv">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="pinTitle">
+    <h2 id="pinTitle">Parent mode</h2>
+    <p class="hint" id="pinHint">Enter your 4-digit PIN.</p>
+    <div class="pinbox">
+      <input id="pinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off">
+    </div>
+    <p class="pinmsg" id="pinMsg"></p>
+    <div class="acts">
+      <button class="btn" id="pinCancel">Cancel</button>
+      <button class="btn primary" id="pinOk">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<!-- item add / edit -->
+<div class="ov" id="itemOv">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="itemTitle">
+    <h2 id="itemTitle">Add something to track</h2>
+    <div class="field">
+      <label for="fName">What is it?</label>
+      <input id="fName" type="text" placeholder="e.g. Maths worksheet" maxlength="60">
+    </div>
+    <div class="field">
+      <label for="fAt">Usual time</label>
+      <input id="fAt" type="time" value="16:00">
+    </div>
+    <p class="hint">The list sorts itself by this time, so the day reads top to bottom.</p>
+    <div class="field">
+      <label for="fType">How do you mark it?</label>
+      <select id="fType">
+        <option value="check">Tick when done</option>
+        <option value="time">Tick and record the time it happened</option>
+        <option value="count">Count repeats up to a target</option>
+      </select>
+    </div>
+    <div class="field hide" id="targetField">
+      <label for="fTarget">How many repeats?</label>
+      <input id="fTarget" type="number" min="1" max="20" value="3">
+    </div>
+    <div class="field">
+      <label for="fKind">Group</label>
+      <select id="fKind">
+        <option value="prayer">Prayers</option>
+        <option value="quran">Quran</option>
+        <option value="learning">School work</option>
+        <option value="routine">Home routine</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="fPri">How important?</label>
+      <select id="fPri">
+        <option value="must">Must do — counts towards the star</option>
+        <option value="normal">Good to do</option>
+        <option value="bonus">Bonus</option>
+      </select>
+    </div>
+    <div class="acts">
+      <button class="btn danger hide" id="itemDelete">Delete</button>
+      <button class="btn" id="itemCancel">Cancel</button>
+      <button class="btn primary" id="itemSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- history -->
+<div class="ov" id="histOv">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="histTitle">
+    <h2 id="histTitle">History</h2>
+    <div class="mnav">
+      <button id="mPrev" aria-label="Previous month">‹</button>
+      <span id="mLabel"></span>
+      <button id="mNext" aria-label="Next month">›</button>
+    </div>
+    <div class="cal" id="cal"></div>
+    <div class="stat" id="histStat"></div>
+    <p class="legend">A gold square is a full day. Tap any day to open it.</p>
+    <div class="acts"><button class="btn primary" id="histClose">Close</button></div>
+  </div>
+</div>
+
+<!-- reports -->
+<div class="ov" id="reportOv">
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="acts noprint" style="justify-content:space-between;margin:0 0 14px">
+      <div class="rtabs">
+        <button class="btn" id="rWeek">Weekly</button>
+        <button class="btn" id="rMonth">Monthly</button>
+      </div>
+      <div class="rtabs">
+        <button class="btn" id="rPrev" aria-label="Earlier">‹</button>
+        <button class="btn" id="rNext" aria-label="Later">›</button>
+        <button class="btn primary" id="rPrint">Print</button>
+        <button class="btn" id="rClose">Close</button>
+      </div>
+    </div>
+    <div id="reportBody"></div>
+  </div>
+</div>
+
+<!-- settings -->
+<div class="ov" id="dataOv">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dataTitle">
+    <h2 id="dataTitle">Settings</h2>
+    <p class="status" id="syncStatus"></p>
+
+    <div class="field">
+      <label for="fChild">Whose day is this?</label>
+      <input id="fChild" type="text" maxlength="24">
+    </div>
+    <div class="field">
+      <label for="fRiddle">Riddle after each tick (child mode)</label>
+      <select id="fRiddle"><option value="1">On</option><option value="0">Off</option></select>
+    </div>
+
+    <h2 style="margin-top:22px">Sync</h2>
+    <div class="field">
+      <label for="fFam">Family code — the same on every device</label>
+      <input id="fFam" type="text" placeholder="e.g. najman-house-7c2f" maxlength="48">
+    </div>
+    <div class="field">
+      <label for="fCfg">Firebase config (paste the object from the Firebase console)</label>
+      <textarea id="fCfg" placeholder='{"apiKey":"...","databaseURL":"https://....firebasedatabase.app","projectId":"..."}'></textarea>
+    </div>
+    <p class="hint">Saved on this device only. Enter the same two on all four devices and they stay in step.</p>
+    <div class="acts" style="justify-content:flex-start">
+      <button class="btn primary" id="syncSave">Save and connect</button>
+      <button class="btn" id="syncOff">Disconnect</button>
+    </div>
+
+    <h2 style="margin-top:22px">Backup</h2>
+    <div class="acts" style="justify-content:flex-start">
+      <button class="btn" id="expBtn">Export backup</button>
+      <button class="btn" id="impBtn">Import backup</button>
+      <input type="file" id="impFile" accept="application/json" class="hide">
+      <button class="btn" id="pinChange">Change PIN</button>
+    </div>
+
+    <div class="acts" style="justify-content:space-between;margin-top:22px">
+      <button class="btn danger" id="resetBtn">Reset everything</button>
+      <button class="btn primary" id="dataClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   1. Optional: paste your Firebase config here once and commit
+      it, so no device needs setting up by hand. Leaving it null
+      means each device enters it in Settings instead.
+   ============================================================ */
+var FIREBASE_CONFIG = null;
+var FAMILY_CODE = null;
+
+/* ---------------- riddles ---------------- */
+var RIDDLES = ("I have hands but I cannot clap.|A clock\n" +
+"The more I dry, the wetter I get.|A towel\n" +
+"I have a neck but no head.|A bottle\n" +
+"I have keys but open no locks.|A piano\n" +
+"I have one eye but cannot see.|A needle\n" +
+"I go up but never come down.|Your age\n" +
+"I have many teeth but never bite.|A comb\n" +
+"I run but never walk, and I have a bed.|A river\n" +
+"I travel the world while sitting in a corner.|A stamp\n" +
+"I have legs but cannot walk.|A table\n" +
+"Which building has the most stories?|A library\n" +
+"I am full of holes but still hold water.|A sponge\n" +
+"You can catch me but never throw me.|A cold\n" +
+"The more you take, the more you leave behind.|Footsteps\n" +
+"I have a thumb and four fingers but I am not alive.|A glove\n" +
+"Which coat is best put on wet?|A coat of paint\n" +
+"I have a ring but no finger.|A telephone\n" +
+"I am full of words but never speak.|A book\n" +
+"I break the moment you say my name.|Silence\n" +
+"I have a head and a tail but no body.|A coin\n" +
+"I go through towns and over hills but never move.|A road\n" +
+"I am tall when young and short when old.|A candle\n" +
+"I have a spine but no bones.|A book\n" +
+"I come down but never go up.|Rain\n" +
+"I can fill a room but take up no space.|Light\n" +
+"I am always in front of you but you can never see me.|The future\n" +
+"The more you take away from me, the bigger I get.|A hole\n" +
+"I am easy to lift but hard to throw far.|A feather\n" +
+"I have branches but no leaves or fruit.|A bank\n" +
+"Which tree fits in your hand?|A palm tree\n" +
+"I have a mouth but never eat.|A river\n" +
+"I have ears but cannot hear.|A field of corn\n" +
+"I fly without wings and no one can stop me.|Time\n" +
+"You can break me without ever touching me.|A promise\n" +
+"I have six faces and plenty of numbers.|A dice\n" +
+"I start with T, end with T, and have T inside me.|A teapot\n" +
+"Which word is spelled wrong in every dictionary?|Wrong\n" +
+"I have 88 keys but cannot open a single door.|A piano\n" +
+"I have a bark but no bite.|A tree\n" +
+"I am black when clean and white when dirty.|A blackboard\n" +
+"I lose my head every morning and get it back at night.|A pillow\n" +
+"I follow you all day and vanish at night.|Your shadow\n" +
+"Name two things you can never eat for breakfast.|Lunch and dinner\n" +
+"The more you use me, the sharper I get.|Your brain\n" +
+"Which room has no windows and no doors?|A mushroom\n" +
+"I have a neck and a body, no arms, and I make music.|A guitar\n" +
+"You can hold me in your left hand but never in your right.|Your right elbow\n" +
+"I go all around the garden but never move an inch.|A fence\n" +
+"I am made of water, but water kills me.|Ice\n" +
+"I have cities but no houses, forests but no trees.|A map\n" +
+"I have a foot but no legs.|A ruler\n" +
+"I am light as a feather, yet nobody can hold me for long.|Your breath\n" +
+"I have four legs in the morning, two at noon and three at night.|A person\n" +
+"I am the end of everything.|The letter G\n" +
+"I begin with an E and hold only one letter.|An envelope\n" +
+"I can be cracked, made, told and played.|A joke\n" +
+"You can give me away and still keep me.|Your word\n" +
+"I have a bank but no money.|A river\n" +
+"I am taken before you ever get me.|Your photograph\n" +
+"You can serve me but never eat me.|A tennis ball\n" +
+"I wear a crown but I am not a king.|A tooth\n" +
+"I travel faster than sound and have no legs.|Light\n" +
+"I am always coming but never arrive.|Tomorrow\n" +
+"I have a shell but I am not an egg.|A turtle\n" +
+"What smells best at dinner time?|Your nose\n" +
+"I am orange and my name sounds like a parrot.|A carrot\n" +
+"I have stripes but I am not a zebra, and I have whiskers.|A tiger\n" +
+"Which month has 28 days?|All of them\n" +
+"I have a trunk but I am not an elephant.|A tree\n" +
+"I fly without wings and cry without eyes.|A cloud\n" +
+"Which is heavier, a kilo of feathers or a kilo of stones?|They weigh the same\n" +
+"I have arms but I cannot hug.|A chair\n" +
+"Which key can never open a lock?|A monkey\n" +
+"I have pages but I am not a book, and I show the months.|A calendar\n" +
+"I have a screen but I am not a window.|A phone\n" +
+"I have scales but cannot weigh a thing.|A fish\n" +
+"I am found at the end of a rainbow.|The letter W\n" +
+"I have a bell but I am not a phone, and I have two wheels.|A bicycle\n" +
+"I have wings but cannot fly, and I love the cold.|A penguin\n" +
+"I sleep upside down all day.|A bat\n" +
+"I have a nose but cannot smell, and I carry people.|An aeroplane\n" +
+"I have a lid but I am not an eye.|A pot\n" +
+"I am round and hot and rise in the east.|The sun\n" +
+"Which bow can never be tied?|A rainbow\n" +
+"I am sharp, I am wooden, and I help you write.|A pencil\n" +
+"I have four wheels and I fly, but I am not a plane.|A rubbish truck\n" +
+"I get shorter every time you use me and I smell of wax.|A crayon\n" +
+"I hold your lunch and hang on your back.|A school bag\n" +
+"I am white and cold and fall from the sky, but never in Doha.|Snow\n" +
+"I have humps and cross the desert.|A camel\n" +
+"I am tall, I give dates, and I love the sun.|A date palm\n" +
+"I open in the morning and close at night, and you look through me.|Your eye\n" +
+"I am a sea with no water and mountains with no rocks.|A map\n" +
+"I have a face and two hands and I tell you when to pray.|A clock\n" +
+"You wear me on your feet and I have a tongue.|A shoe\n" +
+"I hold water in the sky and let it go when I am full.|A cloud\n" +
+"I am a house that moves and I belong to a snail.|A shell\n" +
+"I come once in a minute, twice in a moment, never in a hundred years.|The letter M").split("\n");
+
+/* ---------------- storage ---------------- */
+var KEY = "afdhi-tracker-v2";
+var memoryOnly = false;
+function lsGet(k){ try{ return window.localStorage.getItem(k); }catch(e){ memoryOnly = true; return null; } }
+function lsSet(k,v){ try{ window.localStorage.setItem(k,v); return true; }catch(e){ memoryOnly = true; return false; } }
+
+var GROUPS = [
+  {id:"prayer",   label:"Prayers",      icon:"🕌"},
+  {id:"quran",    label:"Quran",        icon:"📖"},
+  {id:"learning", label:"School work",  icon:"✏️"},
+  {id:"routine",  label:"Home routine", icon:"🏠"}
+];
+function groupOf(it){
+  for(var i=0;i<GROUPS.length;i++){ if(GROUPS[i].id === it.kind){ return GROUPS[i]; } }
+  return GROUPS[GROUPS.length-1];
+}
+function defaultItems(){
+  return [
+    {id:"fajr",     label:"Fajr",                       kind:"prayer",  type:"time",  at:"04:30", pri:"must"},
+    {id:"dhuhr",    label:"Dhuhr",                      kind:"prayer",  type:"time",  at:"11:30", pri:"must"},
+    {id:"asr",      label:"Asr",                        kind:"prayer",  type:"time",  at:"14:45", pri:"must"},
+    {id:"maghrib",  label:"Maghrib",                    kind:"prayer",  type:"time",  at:"17:30", pri:"must"},
+    {id:"isha",     label:"Isha",                       kind:"prayer",  type:"time",  at:"18:45", pri:"must"},
+    {id:"quran",    label:"Quran recital",              kind:"quran",   type:"time",  at:"17:45", pri:"must"},
+    {id:"memorise", label:"Surah revision",             kind:"quran",   type:"check", at:"18:00", pri:"normal"},
+    {id:"dictation",label:"Dictation words repeated",   kind:"learning",type:"count", at:"16:30", pri:"must", target:3},
+    {id:"writing",  label:"Handwriting practice",       kind:"learning",type:"check", at:"17:00", pri:"must"},
+    {id:"reading",  label:"Story reading",              kind:"learning",type:"check", at:"19:30", pri:"normal"},
+    {id:"dress",    label:"Changed dress after school", kind:"routine", type:"check", at:"13:15", pri:"must"},
+    {id:"lunch",    label:"Lunch — rice and curry",     kind:"routine", type:"time",  at:"13:45", pri:"normal"}
+  ];
+}
+function migrate(){
+  var hasQuran = false, changed = false;
+  for(var i=0;i<state.items.length;i++){
+    var it = state.items[i];
+    if(!it.pri){
+      it.pri = (it.kind === "prayer" || it.kind === "quran") ? "must" : "normal";
+      changed = true;
+    }
+    if(it.kind === "quran"){ hasQuran = true; }
+  }
+  if(!hasQuran){
+    state.items.push({id:"quran", label:"Quran recital", kind:"quran", type:"time", at:"17:45", pri:"must"});
+    state.items.push({id:"memorise", label:"Surah revision", kind:"quran", type:"check", at:"18:00", pri:"normal"});
+    changed = true;
+  }
+  return changed;
+}
+function pushItems(){
+  if(!SYNC.on || !SYNC.root){ return; }
+  var map = {};
+  for(var i=0;i<state.items.length;i++){ map[state.items[i].id] = state.items[i]; }
+  try{ SYNC.root.child("items").set(map); }catch(e){}
+}
+function blank(){
+  return {version:2, child:"Afdhi", pin:"", riddleOn:true, items:defaultItems(), days:{},
+          riddles:{used:{}, solved:0}};
+}
+var state;
+try{ state = JSON.parse(lsGet(KEY)) || blank(); }catch(e){ state = blank(); }
+if(!state.items || !state.items.length){ state.items = defaultItems(); }
+if(!state.days){ state.days = {}; }
+if(!state.riddles){ state.riddles = {used:{}, solved:0}; }
+if(!state.riddles.used){ state.riddles.used = {}; }
+if(!state.child){ state.child = "Afdhi"; }
+if(typeof state.riddleOn !== "boolean"){ state.riddleOn = true; }
+migrate();
+
+/* ---------------- dates ---------------- */
+function iso(d){
+  var m = d.getMonth()+1, day = d.getDate();
+  return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(day<10?"0":"")+day;
+}
+function fromIso(s){ var p = s.split("-"); return new Date(+p[0], +p[1]-1, +p[2]); }
+function ddmmyyyy(s){ var p = s.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; }
+function addDays(s,n){ var d = fromIso(s); d.setDate(d.getDate()+n); return iso(d); }
+function nowHM(){ var d = new Date(), h = d.getHours(), m = d.getMinutes();
+  return (h<10?"0":"")+h+":"+(m<10?"0":"")+m; }
+var DAYNAMES = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+var MONTHS = ["January","February","March","April","May","June","July","August",
+              "September","October","November","December"];
+
+var todayIso = iso(new Date());
+var selected = todayIso;
+var editMode = false;
+var calCursor = todayIso.slice(0,7);
+var mode = lsGet("afdhi-mode") || "parent";
+
+/* ---------------- helpers ---------------- */
+function dayRec(d){
+  if(!state.days[d]){ state.days[d] = {marks:{}, note:""}; }
+  if(!state.days[d].marks){ state.days[d].marks = {}; }
+  return state.days[d];
+}
+function sortedItems(){
+  return state.items.slice().sort(function(a,b){
+    if(a.at === b.at){ return a.label.localeCompare(b.label); }
+    return a.at < b.at ? -1 : 1;
+  });
+}
+function isDone(item, mark){
+  if(!mark){ return false; }
+  if(item.type === "count"){ return (mark.n||0) >= (item.target||1); }
+  return !!mark.done;
+}
+function score(d){
+  var rec = state.days[d], items = state.items;
+  var done = 0, mustDone = 0, mustTotal = 0;
+  for(var i=0;i<items.length;i++){
+    var it = items[i];
+    var ok = !!(rec && isDone(it, rec.marks[it.id]));
+    if(it.pri === "must"){ mustTotal++; if(ok){ mustDone++; } }
+    if(ok){ done++; }
+  }
+  return {
+    done:done, total:items.length, pct: items.length ? done/items.length : 0,
+    mustDone:mustDone, mustTotal:mustTotal,
+    full: !!(mustTotal ? mustDone === mustTotal : (items.length && done === items.length))
+  };
+}
+function streak(){
+  var n = 0, d = todayIso;
+  while(n < 400){
+    if(score(d).full){ n++; d = addDays(d,-1); }
+    else if(d === todayIso){ d = addDays(d,-1); }
+    else { break; }
+  }
+  return n;
+}
+function starsThisWeek(){
+  var n = 0;
+  for(var i=0;i<7;i++){ if(score(addDays(todayIso,-i)).full){ n++; } }
+  return n;
+}
+function esc(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+
+/* ---------------- local save ---------------- */
+var saveTimer = null;
+var saveInd = document.getElementById("saveInd");
+function saveLocal(){
+  if(saveTimer){ clearTimeout(saveTimer); }
+  saveTimer = setTimeout(function(){ lsSet(KEY, JSON.stringify(state)); showStatus(); }, 250);
+}
+
+/* ---------------- firebase sync ---------------- */
+var SYNC = {on:false, root:null, live:false, muted:false, err:""};
+function syncCfg(){
+  var raw = lsGet("afdhi-fbcfg");
+  var cfg = FIREBASE_CONFIG;
+  if(raw){ try{ cfg = JSON.parse(raw); }catch(e){} }
+  return cfg;
+}
+function syncFam(){ return lsGet("afdhi-fam") || FAMILY_CODE || ""; }
+
+function syncInit(){
+  var cfg = syncCfg(), fam = syncFam();
+  if(!cfg || !cfg.apiKey || !cfg.databaseURL || !fam){ SYNC.on = false; showStatus(); return; }
+  if(typeof firebase === "undefined"){ SYNC.err = "Firebase did not load — check the internet."; showStatus(); return; }
+  try{
+    if(!firebase.apps.length){ firebase.initializeApp(cfg); }
+    SYNC.root = firebase.database().ref("families/" + fam);
+    SYNC.on = true;
+    firebase.database().ref(".info/connected").on("value", function(s){
+      SYNC.live = !!s.val(); showStatus();
+    });
+    SYNC.root.on("value", function(snap){ applyRemote(snap.val()); });
+    SYNC.root.on("child_added", function(){}, function(err){
+      SYNC.err = err.message; SYNC.on = false; showStatus();
+    });
+  }catch(e){ SYNC.err = e.message; SYNC.on = false; showStatus(); }
+}
+function push(path, value){
+  if(!SYNC.on || !SYNC.root){ return; }
+  try{ SYNC.root.child(path).set(value); }catch(e){}
+}
+function pushAll(){
+  if(!SYNC.on || !SYNC.root){ return; }
+  var items = {};
+  for(var i=0;i<state.items.length;i++){ items[state.items[i].id] = state.items[i]; }
+  try{
+    SYNC.root.set({
+      meta:{child:state.child, pin:state.pin || "", riddleOn: state.riddleOn ? 1 : 0},
+      items: items,
+      days: state.days,
+      progress:{used: state.riddles.used, solved: state.riddles.solved}
+    });
+  }catch(e){}
+}
+function applyRemote(data){
+  if(!data){ pushAll(); return; }
+  if(data.meta){
+    if(data.meta.child){ state.child = data.meta.child; }
+    state.pin = data.meta.pin || "";
+    state.riddleOn = data.meta.riddleOn ? true : false;
+  }
+  if(data.items){
+    var arr = [];
+    for(var k in data.items){
+      if(Object.prototype.hasOwnProperty.call(data.items,k)){
+        var it = data.items[k]; it.id = k; arr.push(it);
+      }
+    }
+    if(arr.length){ state.items = arr; }
+    if(migrate()){ pushItems(); }
+  }
+  state.days = data.days || {};
+  for(var d in state.days){
+    if(!state.days[d].marks){ state.days[d].marks = {}; }
+  }
+  state.riddles = {used:(data.progress && data.progress.used) || {},
+                   solved:(data.progress && data.progress.solved) || 0};
+  lsSet(KEY, JSON.stringify(state));
+  render(true);
+}
+function showStatus(){
+  var txt;
+  if(!SYNC.on){ txt = memoryOnly ? "⚠ Not saving" : "Saved on this device"; }
+  else if(SYNC.live){ txt = "● In sync"; }
+  else { txt = "● Offline — will catch up"; }
+  saveInd.textContent = txt;
+  saveInd.className = "saveind " + (SYNC.on ? (SYNC.live ? "dot-live" : "dot-off") : "");
+}
+
+/* ---------------- rendering ---------------- */
+function render(fromRemote){
+  document.body.className = mode === "child" ? "child" : "parent";
+  document.getElementById("title").textContent = state.child + "'s day";
+  document.getElementById("modeBtn").textContent = mode === "child" ? "🔒 Parent mode" : "Child view";
+
+  var pOnly = document.querySelectorAll(".pOnly");
+  for(var i=0;i<pOnly.length;i++){ pOnly[i].style.display = mode === "parent" ? "" : "none"; }
+  var cOnly = document.querySelectorAll(".cOnly");
+  for(var j=0;j<cOnly.length;j++){ cOnly[j].style.display = mode === "child" ? "" : "none"; }
+  document.getElementById("dateNav").style.display = mode === "parent" ? "" : "none";
+  document.getElementById("skyWrap").style.display = mode === "child" ? "" : "none";
+
+  if(mode === "child"){ selected = todayIso; }
+  document.getElementById("dateLabel").textContent =
+    DAYNAMES[fromIso(selected).getDay()] + " " + ddmmyyyy(selected);
+  document.getElementById("dateInput").value = selected;
+
+  var s = score(selected), st = streak();
+  var bits = "<b>" + s.mustDone + " of " + s.mustTotal + "</b> must-do · " + s.done + " of " + s.total + " altogether";
+  if(st > 0){ bits += " · " + st + " star day" + (st>1?"s":"") + " in a row"; }
+  document.getElementById("tally").innerHTML = bits;
+  document.getElementById("skyMid").textContent = s.mustDone + " / " + s.mustTotal + " must-do";
+
+  renderSky(s.pct);
+  renderTimeline();
+  renderWeek();
+  renderJar();
+
+  var dn = document.getElementById("dayDone");
+  if(s.full){
+    dn.innerHTML = '<p class="done-note">★ Star day. Every must-do is finished — well done, ' + esc(state.child) +
+                   (s.done < s.total ? ". " + (s.total - s.done) + " extra" + (s.total-s.done>1?"s":"") + " still open if you want them." : ".") +
+                   "</p>";
+  } else { dn.innerHTML = ""; }
+
+  var note = document.getElementById("dayNote");
+  if(!(fromRemote && document.activeElement === note)){
+    note.value = (state.days[selected] && state.days[selected].note) || "";
+  }
+  document.getElementById("editBtn").className = editMode ? "on pOnly" : "pOnly";
+}
+
+function renderSky(pct){
+  var arc = document.getElementById("arcFill");
+  var len = 380;
+  try{ len = arc.getTotalLength(); }catch(e){}
+  arc.style.strokeDasharray = len;
+  arc.style.strokeDashoffset = len * (1 - pct);
+  var th = Math.PI * (1 - pct);
+  var x = 150 + 132 * Math.cos(th);
+  var y = 104 - 84 * Math.sin(th);
+  document.getElementById("sunG").setAttribute("transform", "translate(" + x.toFixed(1) + "," + y.toFixed(1) + ")");
+}
+
+function renderTimeline(){
+  var tl = document.getElementById("timeline");
+  var all = sortedItems(), rec = state.days[selected];
+  var html = "";
+
+  for(var g=0; g<GROUPS.length; g++){
+    var grp = GROUPS[g];
+    var items = all.filter(function(x){ return groupOf(x).id === grp.id; });
+    if(!items.length){ continue; }
+    var gdone = 0;
+    for(var k=0;k<items.length;k++){
+      if(rec && isDone(items[k], rec.marks[items[k].id])){ gdone++; }
+    }
+    html += '<li class="grphead' + (gdone === items.length ? " full" : "") + '">' +
+              '<span class="gl">' + grp.icon + " " + grp.label + "</span>" +
+              '<span class="gc">' + gdone + " of " + items.length + "</span>" +
+            "</li>";
+    html += rowsFor(items, rec);
+  }
+  tl.innerHTML = html;
+}
+
+function rowsFor(items, rec){
+  var html = "";
+  var icons = {prayer:"🕌", quran:"📖", learning:"✏️", routine:"🏠"};
+
+  for(var i=0;i<items.length;i++){
+    var it = items[i];
+    var mark = rec ? rec.marks[it.id] : null;
+    var done = isDone(it, mark);
+
+    var sub = "";
+    if(it.type === "count"){
+      sub = '<span class="sub">' + ((mark && mark.n)||0) + " of " + (it.target||1) + " repeats</span>";
+    } else if(it.type === "time" && mark && mark.time && (editMode || mode === "child")){
+      sub = '<span class="sub">done at ' + esc(mark.time) + "</span>";
+    }
+
+    var extras = "";
+    if(mode === "parent" && editMode){
+      extras = '<button class="iconbtn" data-edit="' + it.id + '">✎</button>' +
+               '<button class="iconbtn danger" data-del="' + it.id + '">✕</button>';
+    } else if(mode === "parent" && it.type === "time"){
+      extras = '<button class="chip ' + (mark && mark.time ? "set" : "") + '" data-time="' + it.id + '">' +
+               (mark && mark.time ? esc(mark.time) : "set time") + "</button>";
+    } else if(mode === "parent" && it.type === "count"){
+      extras = '<span class="chip plain">' + ((mark && mark.n)||0) + "/" + (it.target||1) + "</span>";
+    }
+
+    var face = mode === "child" ? (done ? "✓" : (icons[it.kind] || "⭐")) : (done ? "✓" : "");
+
+    var pill = "";
+    if(it.pri === "must"){ pill = '<span class="pill p-must">' + (mode === "child" ? "★" : "Must") + "</span>"; }
+    else if(it.pri === "bonus"){ pill = '<span class="pill p-bonus">Bonus</span>'; }
+
+    html += '<li class="row ' + it.kind + " pri-" + (it.pri || "normal") + (done ? " done" : "") + '">' +
+              '<button class="hit" data-toggle="' + it.id + '">' +
+                '<span class="at">' + esc(it.at) + "</span>" +
+                '<span class="dot">' + face + "</span>" +
+                '<span class="name"><span class="main">' + esc(it.label) + "</span>" + pill + sub + "</span>" +
+              "</button>" +
+              '<span class="extras">' + extras + "</span>" +
+            "</li>";
+  }
+  return html;
+}
+
+function renderJar(){
+  var stars = starsThisWeek(), s = "";
+  for(var i=0;i<7;i++){ s += i < stars ? "★" : "☆"; }
+  document.getElementById("jar").innerHTML =
+    '<span class="stars" style="color:#F2A20C">' + s + "</span>" +
+    '<span class="jt"><b>' + stars + " star" + (stars===1?"":"s") + ' this week</b>one for every full day</span>' +
+    '<span class="solved"><b>' + (state.riddles.solved||0) + "</b>riddles solved</span>";
+}
+
+function renderWeek(){
+  var html = "";
+  for(var i=6;i>=0;i--){
+    var d = addDays(todayIso,-i), s = score(d);
+    var full = s.full;
+    html += '<button class="wday' + (d === selected ? " sel" : "") + '" data-day="' + d + '">' +
+              '<span class="d">' + DAYNAMES[fromIso(d).getDay()] + "</span>" +
+              '<span class="n">' + d.slice(8) + "</span>" +
+              '<span class="ring' + (full ? " full" : "") + '" style="--p:' + Math.round(s.pct*360) + 'deg"></span>' +
+            "</button>";
+  }
+  document.getElementById("wdays").innerHTML = html;
+}
+
+/* ---------------- ticking ---------------- */
+document.getElementById("timeline").addEventListener("click", function(ev){
+  var t = ev.target.closest("[data-toggle],[data-time],[data-edit],[data-del]");
+  if(!t){ return; }
+
+  if(t.hasAttribute("data-edit")){ openItem(t.getAttribute("data-edit")); return; }
+
+  if(t.hasAttribute("data-del")){
+    var id = t.getAttribute("data-del");
+    var item = state.items.filter(function(x){ return x.id === id; })[0];
+    if(item && window.confirm('Remove "' + item.label + '" from the list? Past days keep their marks.')){
+      state.items = state.items.filter(function(x){ return x.id !== id; });
+      if(SYNC.on && SYNC.root){ try{ SYNC.root.child("items/"+id).remove(); }catch(e){} }
+      saveLocal(); render();
+    }
+    return;
+  }
+
+  if(t.hasAttribute("data-time")){
+    var tid = t.getAttribute("data-time");
+    var cur = (dayRec(selected).marks[tid] || {}).time || nowHM();
+    var val = window.prompt("Time (hh:mm, 24-hour)", cur);
+    if(val === null){ return; }
+    val = val.trim();
+    if(!/^\d{1,2}:\d{2}$/.test(val)){ window.alert("Enter the time as hh:mm, for example 13:05."); return; }
+    if(val.length === 4){ val = "0" + val; }
+    var m = dayRec(selected).marks[tid] || {};
+    m.time = val; m.done = true;
+    dayRec(selected).marks[tid] = m;
+    push("days/"+selected+"/marks/"+tid, m);
+    saveLocal(); render();
+    return;
+  }
+
+  var toggleId = t.getAttribute("data-toggle");
+  if(mode === "parent" && editMode){ openItem(toggleId); return; }
+  toggleItem(toggleId);
+});
+
+function toggleItem(id){
+  var item = state.items.filter(function(x){ return x.id === id; })[0];
+  if(!item){ return; }
+  var rec = dayRec(selected);
+  var m = rec.marks[id] || {};
+  var wasDone = isDone(item, m);
+
+  if(item.type === "count"){
+    var target = item.target || 1;
+    m.n = ((m.n||0) + 1) > target ? 0 : (m.n||0) + 1;
+    m.done = m.n >= target;
+  } else if(item.type === "time"){
+    if(m.done){ m.done = false; delete m.time; }
+    else { m.done = true; if(!m.time){ m.time = selected === todayIso ? nowHM() : item.at; } }
+  } else {
+    m.done = !m.done;
+  }
+  rec.marks[id] = m;
+  push("days/"+selected+"/marks/"+id, m);
+  saveLocal(); render();
+
+  var nowDone = isDone(item, m);
+  var progressed = item.type === "count" ? (m.n||0) > 0 && !wasDone : nowDone && !wasDone;
+  if(mode === "child" && state.riddleOn && progressed){ showRiddle(); }
+}
+
+/* ---------------- riddles ---------------- */
+var curRiddle = -1;
+function pickRiddle(){
+  var free = [];
+  for(var i=0;i<RIDDLES.length;i++){ if(!state.riddles.used[i]){ free.push(i); } }
+  if(!free.length){ state.riddles.used = {}; push("progress/used", null);
+    for(var j=0;j<RIDDLES.length;j++){ free.push(j); } }
+  return free[Math.floor(Math.random()*free.length)];
+}
+function showRiddle(){
+  curRiddle = pickRiddle();
+  var parts = RIDDLES[curRiddle].split("|");
+  document.getElementById("ridTag").textContent = "Riddle for a job well done";
+  document.getElementById("ridQ").textContent = parts[0];
+  document.getElementById("ridA").textContent = "";
+  document.getElementById("ridStage1").classList.remove("hide");
+  document.getElementById("ridStage2").classList.add("hide");
+  document.getElementById("ridCount").textContent = (state.riddles.solved||0) + " riddles solved so far";
+  document.getElementById("riddleOv").classList.add("open");
+}
+function closeRiddle(){
+  document.getElementById("riddleOv").classList.remove("open");
+  if(curRiddle >= 0){
+    state.riddles.used[curRiddle] = 1;
+    push("progress/used/"+curRiddle, 1);
+    curRiddle = -1;
+    saveLocal();
+  }
+}
+document.getElementById("ridShow").onclick = function(){
+  var parts = RIDDLES[curRiddle].split("|");
+  document.getElementById("ridA").textContent = parts[1];
+  document.getElementById("ridStage1").classList.add("hide");
+  document.getElementById("ridStage2").classList.remove("hide");
+};
+document.getElementById("ridSkip").onclick = closeRiddle;
+document.getElementById("ridMissed").onclick = closeRiddle;
+document.getElementById("ridGot").onclick = function(){
+  state.riddles.solved = (state.riddles.solved||0) + 1;
+  push("progress/solved", state.riddles.solved);
+  closeRiddle(); render();
+};
+
+/* ---------------- mode + pin ---------------- */
+var pinPurpose = "unlock";
+document.getElementById("modeBtn").onclick = function(){
+  if(mode === "parent"){ mode = "child"; lsSet("afdhi-mode","child"); editMode = false; render(); return; }
+  if(!state.pin){ openPin("set"); } else { openPin("unlock"); }
+};
+function openPin(purpose){
+  pinPurpose = purpose;
+  document.getElementById("pinTitle").textContent = purpose === "unlock" ? "Parent mode" : "Set a PIN";
+  document.getElementById("pinHint").textContent = purpose === "unlock"
+    ? "Enter your 4-digit PIN." : "Choose a 4-digit PIN. You will need it to leave child mode.";
+  document.getElementById("pinInput").value = "";
+  document.getElementById("pinMsg").textContent = "";
+  document.getElementById("pinOv").classList.add("open");
+  setTimeout(function(){ document.getElementById("pinInput").focus(); }, 60);
+}
+document.getElementById("pinCancel").onclick = function(){ document.getElementById("pinOv").classList.remove("open"); };
+document.getElementById("pinOk").onclick = function(){
+  var v = document.getElementById("pinInput").value.trim();
+  if(!/^\d{4}$/.test(v)){ document.getElementById("pinMsg").textContent = "Four digits, please."; return; }
+  if(pinPurpose === "unlock"){
+    if(v !== state.pin){ document.getElementById("pinMsg").textContent = "That is not the PIN.";
+      document.getElementById("pinInput").value = ""; return; }
+  } else {
+    state.pin = v; push("meta/pin", v); saveLocal();
+  }
+  document.getElementById("pinOv").classList.remove("open");
+  mode = "parent"; lsSet("afdhi-mode","parent"); render();
+};
+document.getElementById("pinInput").addEventListener("keydown", function(e){
+  if(e.key === "Enter"){ document.getElementById("pinOk").click(); }
+});
+
+/* ---------------- navigation ---------------- */
+document.getElementById("prevBtn").onclick = function(){ selected = addDays(selected,-1); render(); };
+document.getElementById("nextBtn").onclick = function(){ selected = addDays(selected,1); render(); };
+document.getElementById("todayBtn").onclick = function(){ selected = todayIso; render(); };
+document.getElementById("dateInput").onchange = function(e){ if(e.target.value){ selected = e.target.value; render(); } };
+document.getElementById("dateLabel").onclick = function(){
+  var inp = document.getElementById("dateInput");
+  if(inp.showPicker){ try{ inp.showPicker(); }catch(e){ inp.focus(); } } else { inp.focus(); }
+};
+document.getElementById("editBtn").onclick = function(){ editMode = !editMode; render(); };
+document.getElementById("wdays").addEventListener("click", function(ev){
+  var b = ev.target.closest("[data-day]");
+  if(b && mode === "parent"){ selected = b.getAttribute("data-day"); render(); }
+});
+document.getElementById("dayNote").addEventListener("input", function(e){
+  dayRec(selected).note = e.target.value;
+  push("days/"+selected+"/note", e.target.value);
+  saveLocal();
+});
+
+/* ---------------- item add / edit ---------------- */
+var editingId = null;
+var itemOv = document.getElementById("itemOv");
+function openItem(id){
+  editingId = id || null;
+  var it = id ? state.items.filter(function(x){ return x.id === id; })[0] : null;
+  document.getElementById("itemTitle").textContent = it ? "Edit item" : "Add something to track";
+  document.getElementById("fName").value = it ? it.label : "";
+  document.getElementById("fAt").value = it ? it.at : "16:00";
+  document.getElementById("fType").value = it ? it.type : "check";
+  document.getElementById("fKind").value = it ? it.kind : "routine";
+  document.getElementById("fPri").value = (it && it.pri) ? it.pri : "must";
+  document.getElementById("fTarget").value = (it && it.target) ? it.target : 3;
+  document.getElementById("itemDelete").classList[it ? "remove" : "add"]("hide");
+  syncTarget();
+  itemOv.classList.add("open");
+  setTimeout(function(){ document.getElementById("fName").focus(); }, 40);
+}
+function closeItem(){ itemOv.classList.remove("open"); editingId = null; }
+function syncTarget(){
+  document.getElementById("targetField").classList[
+    document.getElementById("fType").value === "count" ? "remove" : "add"]("hide");
+}
+document.getElementById("fType").onchange = syncTarget;
+document.getElementById("addBtn").onclick = function(){ openItem(null); };
+document.getElementById("itemCancel").onclick = closeItem;
+document.getElementById("itemDelete").onclick = function(){
+  if(editingId && window.confirm("Remove this item? Past days keep their marks.")){
+    var gone = editingId;
+    state.items = state.items.filter(function(x){ return x.id !== gone; });
+    if(SYNC.on && SYNC.root){ try{ SYNC.root.child("items/"+gone).remove(); }catch(e){} }
+    saveLocal(); closeItem(); render();
+  }
+};
+document.getElementById("itemSave").onclick = function(){
+  var name = document.getElementById("fName").value.trim();
+  if(!name){ window.alert("Give it a name first."); return; }
+  var it = {
+    id: editingId || ("i" + Date.now().toString(36)),
+    label: name,
+    at: document.getElementById("fAt").value || "16:00",
+    type: document.getElementById("fType").value,
+    kind: document.getElementById("fKind").value,
+    pri: document.getElementById("fPri").value
+  };
+  if(it.type === "count"){ it.target = parseInt(document.getElementById("fTarget").value,10) || 3; }
+  if(editingId){
+    for(var i=0;i<state.items.length;i++){ if(state.items[i].id === editingId){ state.items[i] = it; } }
+  } else {
+    state.items.push(it);
+  }
+  push("items/"+it.id, it);
+  saveLocal(); closeItem(); render();
+};
+
+/* ---------------- history ---------------- */
+var histOv = document.getElementById("histOv");
+document.getElementById("histBtn").onclick = function(){ calCursor = selected.slice(0,7); renderCal(); histOv.classList.add("open"); };
+document.getElementById("histClose").onclick = function(){ histOv.classList.remove("open"); };
+document.getElementById("mPrev").onclick = function(){ shiftMonth(-1); };
+document.getElementById("mNext").onclick = function(){ shiftMonth(1); };
+function shiftMonth(n){
+  var y = +calCursor.slice(0,4), m = +calCursor.slice(5,7) - 1 + n;
+  calCursor = iso(new Date(y, m, 1)).slice(0,7);
+  renderCal();
+}
+function renderCal(){
+  var y = +calCursor.slice(0,4), m = +calCursor.slice(5,7) - 1;
+  document.getElementById("mLabel").textContent = MONTHS[m] + " " + y;
+  var first = new Date(y,m,1).getDay(), days = new Date(y,m+1,0).getDate();
+  var html = "", fullCount = 0, tracked = 0, marks = 0;
+  for(var h=0;h<7;h++){ html += '<div class="hd">' + DAYNAMES[h].slice(0,1) + "</div>"; }
+  for(var b=0;b<first;b++){ html += '<div class="cell empty"></div>'; }
+  for(var d=1; d<=days; d++){
+    var ds = y + "-" + (m+1<10?"0":"") + (m+1) + "-" + (d<10?"0":"") + d;
+    var s = score(ds);
+    var full = s.full;
+    if(full){ fullCount++; }
+    if(s.done > 0){ tracked++; marks += s.done; }
+    html += '<button class="cell' + (full?" full":"") + (ds===todayIso?" today":"") + '" data-cal="' + ds + '">' +
+              "<span>" + d + "</span>" +
+              '<span class="bar2"><i style="width:' + Math.round(s.pct*100) + '%"></i></span>' +
+            "</button>";
+  }
+  document.getElementById("cal").innerHTML = html;
+  document.getElementById("histStat").innerHTML =
+    "<div><b>" + fullCount + "</b>full days</div>" +
+    "<div><b>" + tracked + "</b>days with something done</div>" +
+    "<div><b>" + marks + "</b>items ticked</div>";
+}
+document.getElementById("cal").addEventListener("click", function(ev){
+  var c = ev.target.closest("[data-cal]");
+  if(c){ selected = c.getAttribute("data-cal"); histOv.classList.remove("open"); render(); }
+});
+
+/* ---------------- settings ---------------- */
+var dataOv = document.getElementById("dataOv");
+document.getElementById("dataBtn").onclick = function(){
+  document.getElementById("fChild").value = state.child;
+  document.getElementById("fRiddle").value = state.riddleOn ? "1" : "0";
+  document.getElementById("fFam").value = syncFam();
+  var cfg = lsGet("afdhi-fbcfg");
+  document.getElementById("fCfg").value = cfg || "";
+  var st;
+  if(!SYNC.on){ st = SYNC.err ? ("Not syncing — " + SYNC.err) : "Not syncing. This device saves locally only."; }
+  else if(SYNC.live){ st = "Connected and in sync with the family code " + syncFam() + "."; }
+  else { st = "Connected but offline right now. Changes will upload when the connection returns."; }
+  document.getElementById("syncStatus").textContent = st;
+  dataOv.classList.add("open");
+};
+document.getElementById("dataClose").onclick = function(){
+  var n = document.getElementById("fChild").value.trim();
+  if(n && n !== state.child){ state.child = n; push("meta/child", n); }
+  var r = document.getElementById("fRiddle").value === "1";
+  if(r !== state.riddleOn){ state.riddleOn = r; push("meta/riddleOn", r ? 1 : 0); }
+  saveLocal(); dataOv.classList.remove("open"); render();
+};
+function parseCfg(raw){
+  var t = String(raw).trim();
+  t = t.replace(/^(?:const|var|let)\s+[\w$]+\s*=\s*/, "").replace(/;+\s*$/, "");
+  t = t.replace(/'/g, '"');
+  t = t.replace(/([{,]\s*)([A-Za-z_$][\w$]*)\s*:/g, '$1"$2":');
+  t = t.replace(/,(\s*[}\]])/g, "$1");
+  return JSON.parse(t);
+}
+document.getElementById("syncSave").onclick = function(){
+  var fam = document.getElementById("fFam").value.trim();
+  var cfgRaw = document.getElementById("fCfg").value.trim();
+  if(!fam){ window.alert("Pick a family code — any word you like, the same on every device."); return; }
+  if(cfgRaw){
+    try{
+      var parsed = parseCfg(cfgRaw);
+      if(!parsed.apiKey || !parsed.databaseURL){ throw new Error("missing"); }
+      lsSet("afdhi-fbcfg", JSON.stringify(parsed));
+    }catch(e){
+      window.alert("That config could not be read, or it has no databaseURL. Create the Realtime Database first, then copy the whole firebaseConfig block from the Firebase console.");
+      return;
+    }
+  }
+  lsSet("afdhi-fam", fam);
+  window.location.reload();
+};
+document.getElementById("syncOff").onclick = function(){
+  if(window.confirm("Disconnect this device from sync? Its data stays here.")){
+    lsSet("afdhi-fam",""); lsSet("afdhi-fbcfg",""); window.location.reload();
+  }
+};
+document.getElementById("pinChange").onclick = function(){
+  dataOv.classList.remove("open"); openPin("set");
+};
+document.getElementById("expBtn").onclick = function(){
+  var blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "afdhi-tracker-" + todayIso + ".json";
+  a.click(); URL.revokeObjectURL(a.href);
+};
+document.getElementById("impBtn").onclick = function(){ document.getElementById("impFile").click(); };
+document.getElementById("impFile").onchange = function(e){
+  var f = e.target.files[0]; if(!f){ return; }
+  var r = new FileReader();
+  r.onload = function(){
+    try{
+      var data = JSON.parse(r.result);
+      if(!data.items || !data.days){ throw new Error("shape"); }
+      state = data;
+      if(!state.riddles){ state.riddles = {used:{}, solved:0}; }
+      if(!state.child){ state.child = "Afdhi"; }
+      saveLocal(); pushAll(); dataOv.classList.remove("open"); render();
+      window.alert("Backup loaded.");
+    }catch(err){ window.alert("That file is not a tracker backup."); }
+  };
+  r.readAsText(f); e.target.value = "";
+};
+document.getElementById("resetBtn").onclick = function(){
+  if(window.confirm("Delete every day on every device and go back to the starting list? Export a backup first if you want to keep it.")){
+    var keepPin = state.pin;
+    state = blank(); state.pin = keepPin;
+    saveLocal(); pushAll(); dataOv.classList.remove("open"); render();
+  }
+};
+
+/* ---------------- overlay plumbing ---------------- */
+[itemOv, histOv, dataOv, document.getElementById("reportOv"),
+ document.getElementById("pinOv")].forEach(function(ov){
+  ov.addEventListener("click", function(e){ if(e.target === ov){ ov.classList.remove("open"); } });
+});
+document.getElementById("riddleOv").addEventListener("click", function(e){
+  if(e.target === document.getElementById("riddleOv")){ closeRiddle(); }
+});
+document.addEventListener("keydown", function(e){
+  if(e.key !== "Escape"){ return; }
+  itemOv.classList.remove("open");
+  histOv.classList.remove("open");
+  dataOv.classList.remove("open");
+  document.getElementById("reportOv").classList.remove("open");
+  document.getElementById("pinOv").classList.remove("open");
+  if(document.getElementById("riddleOv").classList.contains("open")){ closeRiddle(); }
+});
+
+/* ---------------- reports ---------------- */
+var rMode = "week";
+var rCursor = todayIso;
+var reportOv = document.getElementById("reportOv");
+
+function weekStart(d){
+  var dt = fromIso(d);
+  dt.setDate(dt.getDate() - dt.getDay());   /* Sunday */
+  return iso(dt);
+}
+function setPage(orient){
+  var st = document.getElementById("pageStyle");
+  if(!st){ st = document.createElement("style"); st.id = "pageStyle"; document.head.appendChild(st); }
+  st.textContent = "@page{size:A4 " + orient + ";margin:12mm}";
+}
+function cellFor(it, d){
+  var rec = state.days[d];
+  var mark = rec ? rec.marks[it.id] : null;
+  if(!isDone(it, mark)){
+    if(it.type === "count" && mark && mark.n){ return '<span class="no">' + mark.n + "/" + (it.target||1) + "</span>"; }
+    return '<span class="no">–</span>';
+  }
+  if(it.type === "time" && mark.time){ return '<span class="yes">' + esc(mark.time) + "</span>"; }
+  if(it.type === "count"){ return '<span class="yes">' + mark.n + "/" + (it.target||1) + "</span>"; }
+  return '<span class="yes">✓</span>';
+}
+function groupedItems(){
+  var all = sortedItems(), out = [];
+  for(var g=0; g<GROUPS.length; g++){
+    var mine = all.filter(function(x){ return groupOf(x).id === GROUPS[g].id; });
+    if(mine.length){ out.push({group:GROUPS[g], items:mine}); }
+  }
+  return out;
+}
+function doneCount(it, days){
+  var n = 0;
+  for(var i=0;i<days.length;i++){
+    var rec = state.days[days[i]];
+    if(rec && isDone(it, rec.marks[it.id])){ n++; }
+  }
+  return n;
+}
+
+function renderReport(){
+  document.getElementById("rWeek").className = "btn" + (rMode === "week" ? " primary" : "");
+  document.getElementById("rMonth").className = "btn" + (rMode === "month" ? " primary" : "");
+  setPage(rMode === "week" ? "portrait" : "landscape");
+
+  var days = [], title = "", sub = "";
+  if(rMode === "week"){
+    var ws = weekStart(rCursor);
+    for(var i=0;i<7;i++){ days.push(addDays(ws, i)); }
+    title = esc(state.child) + " — weekly report";
+    sub = ddmmyyyy(days[0]) + " to " + ddmmyyyy(days[6]);
+  } else {
+    var y = +rCursor.slice(0,4), m = +rCursor.slice(5,7) - 1;
+    var last = new Date(y, m+1, 0).getDate();
+    for(var d=1; d<=last; d++){
+      days.push(y + "-" + (m+1<10?"0":"") + (m+1) + "-" + (d<10?"0":"") + d);
+    }
+    title = esc(state.child) + " — monthly report";
+    sub = MONTHS[m] + " " + y;
+  }
+
+  var groups = groupedItems();
+  var head = '<tr><th class="item">Item</th>';
+  for(var h=0; h<days.length; h++){
+    head += "<th>" + (rMode === "week"
+      ? DAYNAMES[fromIso(days[h]).getDay()] + "<br>" + days[h].slice(8)
+      : days[h].slice(8)) + "</th>";
+  }
+  head += "<th>Done</th></tr>";
+
+  var body = "";
+  var span = days.length + 2;
+  for(var gi=0; gi<groups.length; gi++){
+    body += '<tr class="grp"><td class="item" colspan="' + span + '">' +
+            groups[gi].group.icon + " " + groups[gi].group.label + "</td></tr>";
+    for(var ii=0; ii<groups[gi].items.length; ii++){
+      var it = groups[gi].items[ii];
+      var tag = it.pri === "must" ? " ★" : (it.pri === "bonus" ? " (bonus)" : "");
+      body += '<tr><td class="item">' + esc(it.label) + tag + "</td>";
+      for(var dd=0; dd<days.length; dd++){ body += "<td>" + cellFor(it, days[dd]) + "</td>"; }
+      body += "<td>" + doneCount(it, days) + "/" + days.length + "</td></tr>";
+    }
+  }
+
+  var stars = 0, mustCells = 0, mustDone = 0, allDone = 0, allTotal = 0;
+  var subRow = '<tr class="sub"><td class="item">Must-do complete</td>';
+  var totRow = '<tr class="tot"><td class="item">Items done</td>';
+  for(var k=0; k<days.length; k++){
+    var s = score(days[k]);
+    if(s.full){ stars++; }
+    mustCells += s.mustTotal; mustDone += s.mustDone;
+    allDone += s.done; allTotal += s.total;
+    subRow += "<td>" + (s.full ? "★" : s.mustDone + "/" + s.mustTotal) + "</td>";
+    totRow += "<td>" + s.done + "/" + s.total + "</td>";
+  }
+  subRow += "<td>" + stars + " ★</td></tr>";
+  totRow += "<td>" + allDone + "/" + allTotal + "</td></tr>";
+
+  var pctMust = mustCells ? Math.round(mustDone / mustCells * 100) : 0;
+  var html =
+    '<div class="rhead"><h3>' + title + "</h3><p>" + sub +
+      " · printed " + ddmmyyyy(todayIso) + "</p></div>" +
+    '<div class="rwrap"><table class="rtable ' + (rMode === "month" ? "month" : "") + '">' +
+      "<thead>" + head + "</thead><tbody>" + body + subRow + totRow + "</tbody></table></div>" +
+    '<div class="rsum">' +
+      "<div><b>" + stars + "</b>star days</div>" +
+      "<div><b>" + pctMust + "%</b>of must-do items done</div>" +
+      "<div><b>" + allDone + "</b>items ticked</div>" +
+    "</div>" +
+    '<div class="rsign"><span>Parent\u2019s comment</span><span>Signature</span></div>';
+
+  document.getElementById("reportBody").innerHTML = html;
+}
+
+document.getElementById("repBtn").onclick = function(){
+  rCursor = selected; renderReport(); reportOv.classList.add("open");
+};
+document.getElementById("rClose").onclick = function(){ reportOv.classList.remove("open"); };
+document.getElementById("rWeek").onclick = function(){ rMode = "week"; renderReport(); };
+document.getElementById("rMonth").onclick = function(){ rMode = "month"; renderReport(); };
+document.getElementById("rPrev").onclick = function(){ shiftReport(-1); };
+document.getElementById("rNext").onclick = function(){ shiftReport(1); };
+function shiftReport(n){
+  if(rMode === "week"){ rCursor = addDays(rCursor, 7*n); }
+  else {
+    var y = +rCursor.slice(0,4), m = +rCursor.slice(5,7) - 1 + n;
+    rCursor = iso(new Date(y, m, 1));
+  }
+  renderReport();
+}
+document.getElementById("rPrint").onclick = function(){ window.print(); };
+
+/* ---------------- go ---------------- */
+render();
+syncInit();
+showStatus();
+setInterval(function(){
+  var t = iso(new Date());
+  if(t !== todayIso){ todayIso = t; if(mode === "child"){ selected = t; } render(); }
+}, 60000);
+</script>
+</body>
+</html>
