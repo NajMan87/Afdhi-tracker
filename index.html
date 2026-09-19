@@ -305,6 +305,50 @@ body.child .row.next .dot{animation:nudge 2.4s ease-in-out infinite}
 .twocol{display:flex;gap:10px}
 .twocol>*{flex:1 1 0;min-width:0}
 
+/* ---------- dictation marks ---------- */
+.marks{margin:20px 0 0}
+.mhead{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin:0 0 4px;padding:0 0 6px;border-bottom:1px solid var(--clay)}
+.mhead h2{font-family:"Trebuchet MS",sans-serif;font-size:14.5px;font-weight:700;margin:0;color:var(--night)}
+.mhead button{font:inherit;font-size:13.5px;background:none;border:0;color:var(--sky);cursor:pointer;padding:4px 0}
+.mhead button:hover{color:var(--night)}
+.tests{list-style:none;margin:0;padding:0}
+.test{
+  display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid #F0E8D8;
+  cursor:pointer;border-radius:8px;
+}
+.test:hover{background:rgba(44,110,155,.06)}
+.test .td{flex:1 1 auto;font-size:14.5px}
+.test .ts{font-family:"Trebuchet MS",sans-serif;font-weight:700;font-size:16px;font-variant-numeric:tabular-nums}
+.test .pc{font-size:12.5px;color:var(--mute);min-width:40px;text-align:right}
+.test .pend{font-size:12px;font-weight:700;background:rgba(242,162,12,.2);color:#8A5A04;
+  padding:3px 9px;border-radius:999px}
+.mempty{font-size:13.5px;color:var(--mute);padding:8px 4px;margin:0}
+.test.overdue .pend{background:rgba(127,29,29,.12);color:#7F1D1D}
+.test .skip{font-size:12px;color:var(--mute);border:1px dashed var(--clay);padding:2px 9px;border-radius:999px}
+.test.skipped .td{color:var(--mute)}
+.nag{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  background:#FFF1D2;border:1px solid #F2C46B;border-radius:14px;padding:11px 14px;margin:6px 0 4px;
+}
+.nag .nt{flex:1 1 200px;font-size:14px;color:#6B4A05}
+.nag .nt b{color:var(--night)}
+.nag button{
+  font:inherit;font-size:13.5px;font-weight:700;background:var(--night);color:#fff;border:0;
+  border-radius:10px;padding:8px 14px;cursor:pointer;white-space:nowrap;
+}
+.dcard{
+  display:flex;align-items:center;gap:14px;background:var(--paper);border:1px solid var(--clay);
+  border-radius:16px;padding:12px 16px;margin:12px 0 0;
+}
+.dcard .ic{font-size:26px;line-height:1}
+.dcard .lbl{display:block;font-size:12.5px;color:var(--mute)}
+.dcard .big{font-family:"Trebuchet MS",sans-serif;font-size:22px;font-weight:700;color:var(--night);
+  font-variant-numeric:tabular-nums}
+.dcard .best{margin-left:auto;text-align:right}
+.dcard .best .big{color:var(--palm)}
+.dcard .nxt{display:block;font-size:12px;color:#8A5A04;margin-top:2px}
+
 /* ---------- when-did-you-do-it sheet ---------- */
 #timeOv .sheet{
   background:linear-gradient(168deg,#FFF6E0 0%,#FFE7BE 55%,#FFD9A0 100%);
@@ -399,6 +443,12 @@ body.child .row.next .dot{animation:nudge 2.4s ease-in-out infinite}
 .rtable td.offcell{background:#F7F4EE}
 .rtable.month th,.rtable.month td{padding:2px 1px;font-size:9px}
 .rtable.month td.item,.rtable.month th.item{font-size:10px;min-width:118px}
+.rdict{margin:16px 0 0}
+.rdict h4{font-family:"Trebuchet MS",sans-serif;margin:0 0 6px;font-size:14px;color:var(--night)}
+.rdict p{margin:3px 0;font-size:12.5px;color:var(--ink)}
+.rdict p.m{color:var(--mute)}
+.rdict .rtable{width:auto;min-width:60%}
+.rdict .rtable th,.rdict .rtable td{padding:5px 12px}
 .rsign{margin:16px 0 0;font-size:12px;color:var(--ink);display:flex;gap:26px;flex-wrap:wrap}
 .rsign span{border-bottom:1px solid var(--clay);flex:1 1 200px;padding:14px 0 2px}
 .rsum{display:flex;gap:20px;flex-wrap:wrap;margin:12px 0 0}
@@ -466,6 +516,7 @@ body.child .row.next .dot{animation:nudge 2.4s ease-in-out infinite}
     <span class="saveind" id="saveInd"></span>
   </div>
 
+  <div id="markNag" class="pOnly"></div>
   <div class="tlwrap">
     <div id="spineFill"></div>
     <ol class="timeline" id="timeline"></ol>
@@ -474,6 +525,15 @@ body.child .row.next .dot{animation:nudge 2.4s ease-in-out infinite}
   <div id="dayDone"></div>
 
   <div class="jar cOnly" id="jar"></div>
+  <div class="dcard cOnly" id="dcard"></div>
+
+  <section class="marks pOnly" id="marksSec">
+    <div class="mhead">
+      <h2>📝 Dictation marks</h2>
+      <button type="button" id="testAdd">+ Add test</button>
+    </div>
+    <ul class="tests" id="testList"></ul>
+  </section>
 
   <section class="note pOnly">
     <label for="dayNote">Note for the day</label>
@@ -616,6 +676,34 @@ body.child .row.next .dot{animation:nudge 2.4s ease-in-out infinite}
   </div>
 </div>
 
+<!-- dictation test -->
+<div class="ov" id="testOv">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="testTitle">
+    <h2 id="testTitle">Dictation test</h2>
+    <div class="field">
+      <label for="tDate">Date of the test</label>
+      <input id="tDate" type="date">
+    </div>
+    <div class="twocol">
+      <div class="field">
+        <label for="tScore">Mark</label>
+        <input id="tScore" type="number" min="0" step="0.5" inputmode="decimal" placeholder="Leave empty until it comes home">
+      </div>
+      <div class="field">
+        <label for="tOut">Out of</label>
+        <input id="tOut" type="number" min="1" step="1" inputmode="numeric" value="10">
+      </div>
+    </div>
+    <p class="hint">Add the test on the day he sits it. Leave the mark empty, and it shows as waiting until you fill it in the following week.</p>
+    <div class="acts">
+      <button class="btn danger hide" id="testDelete">Delete</button>
+      <button class="btn hide" id="testSkip">No test this week</button>
+      <button class="btn" id="testCancel">Cancel</button>
+      <button class="btn primary" id="testSave">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- history -->
 <div class="ov" id="histOv">
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="histTitle">
@@ -669,6 +757,17 @@ body.child .row.next .dot{animation:nudge 2.4s ease-in-out infinite}
       <label for="fTimeAsk">Ask what time it was done (child mode)</label>
       <select id="fTimeAsk"><option value="1">On</option><option value="0">Off</option></select>
     </div>
+    <div class="field">
+      <label for="fDictDay">Dictation test day</label>
+      <select id="fDictDay">
+        <option value="-1">No regular day</option>
+        <option value="0">Sunday</option><option value="1">Monday</option>
+        <option value="2">Tuesday</option><option value="3">Wednesday</option>
+        <option value="4">Thursday</option><option value="5">Friday</option>
+        <option value="6">Saturday</option>
+      </select>
+    </div>
+    <p class="hint">Each week on this day a test is added by itself, waiting for its mark. If the mark isn't in 3 days later, parent mode shows a reminder.</p>
 
     <h2 style="margin-top:22px">Sync</h2>
     <div class="field">
@@ -896,7 +995,7 @@ function pushItems(){
   try{ SYNC.root.child("items").set(map); }catch(e){}
 }
 function blank(){
-  return {version:3, child:"Afdhi", pin:"", riddleOn:true, timeAskOn:true,
+  return {version:3, child:"Afdhi", pin:"", riddleOn:true, timeAskOn:true, tests:{},
           items:defaultItems(), days:{}, riddles:{used:{}, solved:0}};
 }
 var state;
@@ -907,6 +1006,8 @@ if(!state.riddles){ state.riddles = {used:{}, solved:0}; }
 if(!state.riddles.used){ state.riddles.used = {}; }
 if(!state.child){ state.child = "Afdhi"; }
 if(typeof state.riddleOn !== "boolean"){ state.riddleOn = true; }
+if(!state.tests || typeof state.tests !== "object"){ state.tests = {}; }
+if(typeof state.dictDay !== "number"){ state.dictDay = 4; }   /* Thursday */
 migrate();
 
 /* ---------------- dates ---------------- */
@@ -995,7 +1096,7 @@ function saveLocal(){
 }
 
 /* ---------------- firebase sync ---------------- */
-var SYNC = {on:false, root:null, live:false, muted:false, err:""};
+var SYNC = {on:false, root:null, live:false, muted:false, err:"", gotData:false};
 function syncCfg(){
   var raw = lsGet("afdhi-fbcfg");
   var cfg = FIREBASE_CONFIG;
@@ -1032,15 +1133,25 @@ function pushAll(){
   try{
     SYNC.root.set({
       meta:{child:state.child, pin:state.pin || "", riddleOn: state.riddleOn ? 1 : 0,
-            timeAskOn: (state.timeAskOn !== false) ? 1 : 0},
+            timeAskOn: (state.timeAskOn !== false) ? 1 : 0,
+            dictDay: state.dictDay, dictFrom: state.dictFrom || ""},
       items: items,
       days: state.days,
+      tests: state.tests || {},
       progress:{used: state.riddles.used, solved: state.riddles.solved}
     });
   }catch(e){}
 }
 function applyRemote(data){
-  if(!data){ pushAll(); return; }
+  SYNC.gotData = true;
+  if(!data){ pushAll(); render(true); return; }
+  var needDictPush = false;
+  if(data.meta){
+    if(typeof data.meta.dictDay === "number"){
+      state.dictDay = data.meta.dictDay;
+      state.dictFrom = data.meta.dictFrom || state.dictFrom || "";
+    } else { needDictPush = true; }   /* family data predates this feature */
+  }
   if(data.meta){
     if(data.meta.child){ state.child = data.meta.child; }
     state.pin = data.meta.pin || "";
@@ -1063,7 +1174,9 @@ function applyRemote(data){
   }
   state.riddles = {used:(data.progress && data.progress.used) || {},
                    solved:(data.progress && data.progress.solved) || 0};
+  state.tests = data.tests || {};
   lsSet(KEY, JSON.stringify(state));
+  if(needDictPush){ push("meta/dictDay", state.dictDay); }
   render(true);
 }
 function showStatus(){
@@ -1103,6 +1216,7 @@ function render(fromRemote){
   renderTimeline();
   renderWeek();
   renderJar();
+  renderMarks();
 
   var dn = document.getElementById("dayDone");
   if(s.full){
@@ -1718,6 +1832,7 @@ document.getElementById("dataBtn").onclick = function(){
   document.getElementById("fChild").value = state.child;
   document.getElementById("fRiddle").value = state.riddleOn ? "1" : "0";
   document.getElementById("fTimeAsk").value = (state.timeAskOn !== false) ? "1" : "0";
+  document.getElementById("fDictDay").value = String(state.dictDay);
   document.getElementById("fFam").value = syncFam();
   var cfg = lsGet("afdhi-fbcfg");
   document.getElementById("fCfg").value = cfg || "";
@@ -1735,6 +1850,14 @@ document.getElementById("dataClose").onclick = function(){
   if(r !== state.riddleOn){ state.riddleOn = r; push("meta/riddleOn", r ? 1 : 0); }
   var ta = document.getElementById("fTimeAsk").value === "1";
   if(ta !== (state.timeAskOn !== false)){ state.timeAskOn = ta; push("meta/timeAskOn", ta ? 1 : 0); }
+  var dd = parseInt(document.getElementById("fDictDay").value, 10);
+  if(dd !== state.dictDay){
+    state.dictDay = dd;
+    /* start from this week, never back-fill old weeks */
+    state.dictFrom = dd >= 0 ? lastWeekdayOnOrBefore(dd, todayIso) : "";
+    push("meta/dictDay", dd);
+    push("meta/dictFrom", state.dictFrom);
+  }
   saveLocal(); dataOv.classList.remove("open"); render();
 };
 function parseCfg(raw){
@@ -1788,6 +1911,7 @@ document.getElementById("impFile").onchange = function(e){
       state = data;
       if(!state.riddles){ state.riddles = {used:{}, solved:0}; }
       if(!state.child){ state.child = "Afdhi"; }
+      if(!state.tests){ state.tests = {}; }
       saveLocal(); pushAll(); dataOv.classList.remove("open"); render();
       window.alert("Backup loaded.");
     }catch(err){ window.alert("That file is not a tracker backup."); }
@@ -1804,7 +1928,7 @@ document.getElementById("resetBtn").onclick = function(){
 
 /* ---------------- overlay plumbing ---------------- */
 [itemOv, histOv, dataOv, document.getElementById("reportOv"),
- document.getElementById("pinOv")].forEach(function(ov){
+ document.getElementById("pinOv"), document.getElementById("testOv")].forEach(function(ov){
   ov.addEventListener("click", function(e){ if(e.target === ov){ ov.classList.remove("open"); } });
 });
 document.getElementById("riddleOv").addEventListener("click", function(e){
@@ -1816,6 +1940,7 @@ document.addEventListener("keydown", function(e){
   histOv.classList.remove("open");
   dataOv.classList.remove("open");
   document.getElementById("reportOv").classList.remove("open");
+  document.getElementById("testOv").classList.remove("open");
   document.getElementById("pinOv").classList.remove("open");
   if(document.getElementById("riddleOv").classList.contains("open")){ closeRiddle(); }
 });
@@ -1941,6 +2066,7 @@ function renderReport(){
       " · printed " + ddmmyyyy(todayIso) + "</p></div>" +
     '<div class="rwrap"><table class="rtable ' + (rMode === "month" ? "month" : "") + '">' +
       "<thead>" + head + "</thead><tbody>" + body + subRow + totRow + "</tbody></table></div>" +
+    (rMode === "week" ? weeklyDictHtml(days) : monthlyDictHtml(days)) +
     '<div class="rsum">' +
       "<div><b>" + stars + "</b>star days</div>" +
       "<div><b>" + pctMust + "%</b>of must-do items done</div>" +
@@ -1968,6 +2094,247 @@ function shiftReport(n){
   renderReport();
 }
 document.getElementById("rPrint").onclick = function(){ window.print(); };
+
+/* ---------------- dictation marks ---------------- */
+var DICT_NAG_DAYS = 3;
+
+function testsList(){
+  var out = [], t = state.tests || {};
+  for(var k in t){
+    if(!Object.prototype.hasOwnProperty.call(t,k) || !t[k] || !t[k].date){ continue; }
+    out.push({id:k, date:t[k].date, score:t[k].score, outOf:t[k].outOf || 10,
+              auto:!!t[k].auto, skipped:!!t[k].skipped});
+  }
+  out.sort(function(a,b){ return a.date < b.date ? 1 : (a.date > b.date ? -1 : 0); });
+  return out;   /* newest first */
+}
+function isMarked(t){ return typeof t.score === "number" && !isNaN(t.score); }
+function isSkipped(t){ return !!t.skipped; }
+function isWaiting(t){ return !isMarked(t) && !isSkipped(t); }
+function isOverdue(t){ return isWaiting(t) && t.date <= addDays(todayIso, -DICT_NAG_DAYS); }
+
+function lastWeekdayOnOrBefore(dow, dIso){
+  var d = dIso;
+  for(var i=0; i<7; i++){
+    if(fromIso(d).getDay() === dow){ return d; }
+    d = addDays(d, -1);
+  }
+  return dIso;
+}
+
+/* merge rather than overwrite, so a device that is a step behind can never wipe a mark */
+function pushMerge(path, obj){
+  if(!SYNC.on || !SYNC.root){ return; }
+  try{ SYNC.root.child(path).update(obj); }catch(e){}
+}
+
+/* one waiting test per week on the chosen day, from dictFrom up to today */
+function ensureAutoTests(){
+  var dow = state.dictDay;
+  if(typeof dow !== "number" || dow < 0 || dow > 6){ return false; }
+  if(SYNC.on && !SYNC.gotData){ return false; }     /* wait until the family's data has arrived */
+  if(!state.dictFrom){
+    state.dictFrom = lastWeekdayOnOrBefore(dow, todayIso);
+    push("meta/dictFrom", state.dictFrom);
+  }
+  var d = state.dictFrom;
+  while(fromIso(d).getDay() !== dow){ d = addDays(d, 1); }
+
+  var made = false, list = testsList();
+  var outOf = list.length ? list[0].outOf : 10;
+  for(var guard=0; d <= todayIso && guard < 120; guard++, d = addDays(d, 7)){
+    var ws = weekStart(d), we = addDays(ws, 6);
+    var has = list.some(function(t){ return t.date >= ws && t.date <= we; });
+    if(has){ continue; }
+    var id = "d" + d.replace(/-/g, "");
+    var rec = {date:d, outOf:outOf, auto:1};
+    state.tests[id] = rec;
+    pushMerge("tests/" + id, rec);
+    list.push({id:id, date:d, outOf:outOf, auto:true, skipped:false});
+    made = true;
+  }
+  return made;
+}
+function pctOf(t){ return t.outOf ? Math.round(t.score / t.outOf * 100) : 0; }
+function scoreStr(t){ return fmtNum(t.score) + "/" + fmtNum(t.outOf); }
+function fmtNum(n){ return (Math.round(n*10)/10).toString(); }
+function shortDate(d){ return DAYNAMES[fromIso(d).getDay()] + " " + ddmmyyyy(d); }
+function testsBetween(a, b){
+  return testsList().filter(function(t){ return t.date >= a && t.date <= b; }).reverse();
+}
+/* the daily "dictation words repeated" item, if the list still has one */
+function dictItem(){
+  var byId = state.items.filter(function(x){ return x.id === "dictation"; })[0];
+  if(byId){ return byId; }
+  return state.items.filter(function(x){ return /dictation/i.test(x.label); })[0] || null;
+}
+function practiceBetween(a, b){
+  var it = dictItem();
+  if(!it){ return null; }
+  var days = [];
+  for(var d = a; d <= b; d = addDays(d, 1)){ days.push(d); }
+  return doneCount(it, days);
+}
+
+function renderMarks(){
+  if(ensureAutoTests()){ saveLocal(); }
+  var list = testsList();
+
+  /* parent: reminder for marks that should be home by now */
+  var nag = document.getElementById("markNag");
+  var due = list.filter(isOverdue);
+  if(mode === "parent" && due.length){
+    var oldest = due[due.length - 1];
+    nag.innerHTML = '<div class="nag"><span class="nt">📝 ' +
+      (due.length === 1
+        ? "Dictation mark for <b>" + shortDate(oldest.date) + "</b> still to enter"
+        : "<b>" + due.length + " dictation marks</b> still to enter") +
+      '</span><button type="button" data-test="' + oldest.id + '">Enter mark</button></div>';
+  } else { nag.innerHTML = ""; }
+
+  /* parent: the log */
+  var ul = document.getElementById("testList");
+  if(!list.length){
+    ul.innerHTML = '<li class="mempty">No tests yet. Add one on the day he sits it, ' +
+                   "then fill in the mark when it comes home.</li>";
+  } else {
+    var html = "";
+    for(var i=0; i<Math.min(list.length, 8); i++){
+      var t = list[i], right;
+      if(isMarked(t)){ right = '<span class="ts">' + scoreStr(t) + '</span><span class="pc">' + pctOf(t) + "%</span>"; }
+      else if(isSkipped(t)){ right = '<span class="skip">No test</span>'; }
+      else { right = '<span class="pend">' + (isOverdue(t) ? "Mark overdue" : "Waiting for mark") + "</span>"; }
+      html += '<li class="test' + (isOverdue(t) ? " overdue" : "") + (isSkipped(t) ? " skipped" : "") +
+                '" data-test="' + t.id + '">' +
+                '<span class="td">' + shortDate(t.date) + "</span>" + right +
+              "</li>";
+    }
+    ul.innerHTML = html;
+  }
+
+  /* child: latest and best */
+  var card = document.getElementById("dcard");
+  var marked = list.filter(isMarked);
+  if(mode !== "child" || !marked.length){ card.style.display = "none"; card.innerHTML = ""; return; }
+  var latest = marked[0], best = marked[0];
+  for(var j=1; j<marked.length; j++){ if(pctOf(marked[j]) > pctOf(best)){ best = marked[j]; } }
+  var newestReal = list.filter(function(x){ return !isSkipped(x); })[0];
+  var waiting = newestReal && isWaiting(newestReal);
+  card.style.display = "";
+  card.innerHTML =
+    '<span class="ic">📝</span>' +
+    '<span><span class="lbl">Last dictation</span><span class="big">' + scoreStr(latest) + "</span>" +
+      (waiting ? '<span class="nxt">Next mark on its way</span>' : "") + "</span>" +
+    '<span class="best"><span class="lbl">Best so far</span><span class="big">' + scoreStr(best) + "</span></span>";
+}
+
+var testOv = document.getElementById("testOv");
+var editingTest = null;
+function openTest(id){
+  editingTest = id || null;
+  var t = id ? state.tests[id] : null;
+  var last = testsList()[0];
+  document.getElementById("testTitle").textContent =
+    !t ? "Add dictation test" : (t.skipped ? "No test this week" : "Dictation test");
+  document.getElementById("tDate").value = t ? t.date : todayIso;
+  document.getElementById("tScore").value = (t && typeof t.score === "number") ? t.score : "";
+  document.getElementById("tOut").value = t ? (t.outOf || 10) : (last ? last.outOf : 10);
+  /* auto tests would just come back if deleted, so they get "No test this week" instead */
+  document.getElementById("testDelete").classList[t && !t.auto ? "remove" : "add"]("hide");
+  document.getElementById("testSkip").classList[t && t.auto && !t.skipped && typeof t.score !== "number" ? "remove" : "add"]("hide");
+  testOv.classList.add("open");
+  /* when opening a waiting test, jump straight to the mark */
+  setTimeout(function(){
+    document.getElementById(t && typeof t.score !== "number" ? "tScore" : "tDate").focus();
+  }, 40);
+}
+function closeTest(){ testOv.classList.remove("open"); editingTest = null; }
+
+document.getElementById("testAdd").onclick = function(){ openTest(null); };
+document.getElementById("testList").addEventListener("click", function(ev){
+  var li = ev.target.closest("[data-test]");
+  if(li){ openTest(li.getAttribute("data-test")); }
+});
+document.getElementById("testCancel").onclick = closeTest;
+document.getElementById("markNag").addEventListener("click", function(ev){
+  var b = ev.target.closest("[data-test]");
+  if(b){ openTest(b.getAttribute("data-test")); }
+});
+document.getElementById("testSkip").onclick = function(){
+  if(!editingTest){ return; }
+  var cur = state.tests[editingTest] || {};
+  var rec = {date:cur.date, outOf:cur.outOf || 10, auto:1, skipped:1};
+  state.tests[editingTest] = rec;
+  push("tests/" + editingTest, rec);
+  saveLocal(); closeTest(); render();
+};
+document.getElementById("testDelete").onclick = function(){
+  if(!editingTest || !window.confirm("Delete this test and its mark?")){ return; }
+  var gone = editingTest;
+  delete state.tests[gone];
+  if(SYNC.on && SYNC.root){ try{ SYNC.root.child("tests/" + gone).remove(); }catch(e){} }
+  saveLocal(); closeTest(); render();
+};
+document.getElementById("testSave").onclick = function(){
+  var date = document.getElementById("tDate").value;
+  var rawScore = document.getElementById("tScore").value.trim();
+  var outOf = parseFloat(document.getElementById("tOut").value);
+  if(!date){ window.alert("Pick the date of the test."); return; }
+  if(!(outOf > 0)){ window.alert("“Out of” needs to be a number above 0."); return; }
+  var rec = {date:date, outOf:outOf};
+  if(editingTest && state.tests[editingTest] && state.tests[editingTest].auto){ rec.auto = 1; }
+  if(rawScore !== ""){
+    var score = parseFloat(rawScore);
+    if(isNaN(score) || score < 0){ window.alert("The mark needs to be a number, or leave it empty."); return; }
+    if(score > outOf){ window.alert("The mark can't be more than " + fmtNum(outOf) + "."); return; }
+    rec.score = score;
+  }
+  var id = editingTest || ("t" + Date.now().toString(36) + Math.random().toString(36).slice(2,6));
+  state.tests[id] = rec;
+  push("tests/" + id, rec);
+  saveLocal(); closeTest(); render();
+};
+
+/* report blocks */
+function weeklyDictHtml(days){
+  var tests = testsBetween(days[0], days[days.length-1]);
+  var prac = practiceBetween(days[0], days[days.length-1]);
+  var html = '<div class="rdict"><h4>📝 Dictation</h4>';
+  if(!tests.length){ html += '<p class="m">No dictation test recorded this week.</p>'; }
+  for(var i=0; i<tests.length; i++){
+    var t = tests[i];
+    if(isSkipped(t)){ html += '<p class="m">No test this week.</p>'; continue; }
+    html += "<p>Test " + shortDate(t.date) + ": " +
+            (isMarked(t) ? "<b>" + scoreStr(t) + "</b> (" + pctOf(t) + "%)" : '<span class="m">waiting for mark</span>') +
+            "</p>";
+  }
+  if(prac && prac.of){ html += '<p class="m">Practised the words on ' + prac.done + " of " + prac.of + " days this week.</p>"; }
+  return html + "</div>";
+}
+function monthlyDictHtml(days){
+  var tests = testsBetween(days[0], days[days.length-1]);
+  var html = '<div class="rdict"><h4>📝 Dictation</h4>';
+  if(!tests.length){ return html + '<p class="m">No dictation tests recorded this month.</p></div>'; }
+  html += '<table class="rtable"><thead><tr><th class="item">Test</th><th>Mark</th><th>%</th>' +
+          "<th>Practice that week</th></tr></thead><tbody>";
+  var sum = 0, n = 0;
+  for(var i=0; i<tests.length; i++){
+    var t = tests[i];
+    var prac = practiceBetween(weekStart(t.date), t.date);
+    if(isMarked(t)){ sum += pctOf(t); n++; }
+    if(isSkipped(t)){
+      html += '<tr><td class="item">' + shortDate(t.date) + '</td><td colspan="3"><span class="off">no test that week</span></td></tr>';
+      continue;
+    }
+    html += '<tr><td class="item">' + shortDate(t.date) + "</td>" +
+            "<td>" + (isMarked(t) ? '<span class="yes">' + scoreStr(t) + "</span>" : '<span class="no">waiting</span>') + "</td>" +
+            "<td>" + (isMarked(t) ? pctOf(t) + "%" : "") + "</td>" +
+            "<td>" + (prac && prac.of ? prac.done + " of " + prac.of + " days" : "–") + "</td></tr>";
+  }
+  html += '<tr class="tot"><td class="item">Average</td><td></td><td>' + (n ? Math.round(sum/n) + "%" : "–") +
+          "</td><td>" + n + " marked</td></tr></tbody></table>";
+  return html + "</div>";
+}
 
 /* ---------------- go ---------------- */
 render();
