@@ -274,6 +274,108 @@ body.child .grphead .gl{font-size:17px}
 .p-bonus{background:rgba(124,117,137,.16);color:var(--mute)}
 .row.pri-bonus .name .main{color:var(--mute)}
 
+/* ---------- scheduling marks ---------- */
+.pill.p-days{background:rgba(44,110,155,.15);color:#1D4E6E}
+.name .win{display:block;font-size:12px;color:var(--mute)}
+body.child .row.next{
+  border-color:var(--gold);
+  box-shadow:0 0 0 4px rgba(242,162,12,.2);
+}
+body.child .row.next .dot{animation:nudge 2.4s ease-in-out infinite}
+@keyframes nudge{0%,88%,100%{transform:scale(1)}94%{transform:scale(1.09)}}
+.dayrow{display:flex;gap:5px;flex-wrap:wrap}
+.daybtn{
+  flex:1 1 38px;font:inherit;font-size:12.5px;font-weight:700;padding:9px 0;
+  background:var(--paper);border:1px solid var(--clay);border-radius:10px;
+  color:var(--mute);cursor:pointer;
+}
+.daybtn.on{background:var(--night);border-color:var(--night);color:#fff}
+.quickdays{display:flex;gap:6px;flex-wrap:wrap;margin:7px 0 0}
+.quickdays button{
+  font:inherit;font-size:12px;padding:5px 11px;border-radius:999px;
+  border:1px solid var(--clay);background:var(--paper);color:var(--sky);cursor:pointer;
+}
+.quickdays button:hover{border-color:var(--sky)}
+.iconrow{display:flex;gap:6px;flex-wrap:wrap}
+.icobtn{
+  font-size:19px;width:42px;height:42px;line-height:1;border-radius:12px;
+  border:1px solid var(--clay);background:var(--paper);cursor:pointer;
+}
+.icobtn.on{border-color:var(--night);box-shadow:inset 0 0 0 2px var(--night)}
+.twocol{display:flex;gap:10px}
+.twocol>*{flex:1 1 0;min-width:0}
+
+/* ---------- when-did-you-do-it sheet ---------- */
+#timeOv .sheet{
+  background:linear-gradient(168deg,#FFF6E0 0%,#FFE7BE 55%,#FFD9A0 100%);
+  text-align:center;max-width:460px;
+}
+.tw-tag{font-size:13px;color:#8A5A04;letter-spacing:.3px;margin:0}
+.tw-item{font-family:"Trebuchet MS",sans-serif;font-size:21px;color:var(--night);margin:6px 0 14px}
+.tw-item .ic{font-size:26px;display:block;margin:0 0 4px}
+.tw-big{
+  font-family:"Trebuchet MS",sans-serif;font-size:54px;font-weight:700;color:var(--night);
+  line-height:1;font-variant-numeric:tabular-nums;margin:0;
+}
+.tw-sub{font-size:13px;color:#8A5A04;margin:6px 0 16px}
+.tw-offs{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin:0 0 6px}
+.tw-offs button{
+  font:inherit;font-size:14px;font-weight:700;padding:9px 14px;border-radius:999px;
+  border:2px solid rgba(34,26,75,.16);background:rgba(255,255,255,.75);
+  color:var(--night);cursor:pointer;
+}
+.tw-offs button:hover{border-color:var(--night)}
+.tw-exact{margin:12px 0 0;font-size:13px;color:#8A5A04}
+.tw-exact input{
+  font:inherit;font-size:17px;padding:8px 12px;border-radius:12px;
+  border:1px solid rgba(34,26,75,.2);background:rgba(255,255,255,.85);color:var(--ink);
+  margin-left:6px;
+}
+#timeOv .btn{background:rgba(255,255,255,.7);border-color:transparent;color:var(--night)}
+#timeOv .btn.primary{background:var(--night);border-color:var(--night);color:#fff}
+
+/* ---------- celebration ---------- */
+#celeb{position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden;display:none}
+#celeb.on{display:block}
+#celeb i{position:absolute;display:block;will-change:transform,opacity}
+#celeb .word{
+  position:absolute;left:50%;top:34%;transform:translate(-50%,-50%);
+  font-family:"Trebuchet MS",sans-serif;font-size:38px;font-weight:700;
+  color:#FFD166;background:rgba(34,26,75,.94);padding:14px 30px;border-radius:999px;
+  box-shadow:0 10px 30px rgba(34,26,75,.35),0 0 0 4px rgba(242,162,12,.55);
+  animation:pop 1.25s cubic-bezier(.2,1.5,.4,1) forwards;white-space:nowrap;
+}
+@media(max-width:430px){ #celeb .word{font-size:30px;padding:12px 22px} }
+@keyframes pop{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}
+  25%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}
+  70%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-115%) scale(.94)}
+}
+@keyframes cfall{
+  0%{transform:translate3d(0,-14vh,0) rotate(0deg);opacity:0}
+  12%{opacity:1}
+  100%{transform:translate3d(var(--dx,0px),104vh,0) rotate(var(--rot,600deg));opacity:0}
+}
+@keyframes cburst{
+  0%{transform:translate3d(0,0,0) scale(.25);opacity:0}
+  18%{opacity:1}
+  100%{transform:translate3d(var(--dx,0px),var(--dy,0px),0) scale(var(--sc,1.1));opacity:0}
+}
+@keyframes crise{
+  0%{transform:translate3d(0,18vh,0) scale(.35);opacity:0}
+  22%{opacity:.95}
+  100%{transform:translate3d(var(--dx,0px),-46vh,0) scale(1);opacity:0}
+}
+@keyframes cring{
+  0%{transform:translate(-50%,-50%) scale(.2);opacity:.85}
+  100%{transform:translate(-50%,-50%) scale(2.8);opacity:0}
+}
+@media(prefers-reduced-motion:reduce){
+  #celeb i{display:none}
+  #celeb .word{animation:none;opacity:1}
+}
+
 /* ---------- reports ---------- */
 .rtabs{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .rhead{margin:0 0 12px}
@@ -293,6 +395,8 @@ body.child .grphead .gl{font-size:17px}
 .rtable tr.tot td{background:#92400E;color:#fff;font-weight:700}
 .rtable .yes{color:#14532D;font-weight:700}
 .rtable .no{color:#B9B2A4}
+.rtable .off{color:#D8D0C2}
+.rtable td.offcell{background:#F7F4EE}
 .rtable.month th,.rtable.month td{padding:2px 1px;font-size:9px}
 .rtable.month td.item,.rtable.month th.item{font-size:10px;min-width:118px}
 .rsign{margin:16px 0 0;font-size:12px;color:var(--ink);display:flex;gap:26px;flex-wrap:wrap}
@@ -382,6 +486,32 @@ body.child .grphead .gl{font-size:17px}
   </section>
 </div>
 
+<div id="celeb" aria-hidden="true"></div>
+
+<!-- when did you do it -->
+<div class="ov" id="timeOv">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="twItem">
+    <p class="tw-tag">When did you do it?</p>
+    <p class="tw-item" id="twItem"><span class="ic" id="twIcon">⭐</span><span id="twName"></span></p>
+    <p class="tw-big" id="twBig">--:--</p>
+    <p class="tw-sub" id="twSub"></p>
+    <div class="tw-offs">
+      <button data-off="-5">5 min ago</button>
+      <button data-off="-15">15 min</button>
+      <button data-off="-30">30 min</button>
+      <button data-off="-60">1 hour</button>
+      <button data-off="0">Now</button>
+    </div>
+    <p class="tw-exact">or set it exactly
+      <input id="twExact" type="time" aria-label="Exact time">
+    </p>
+    <div class="acts" style="justify-content:center">
+      <button class="btn" id="twSkip">Not sure</button>
+      <button class="btn primary" id="twSave">That's the time</button>
+    </div>
+  </div>
+</div>
+
 <!-- riddle -->
 <div class="ov" id="riddleOv">
   <div class="sheet" role="dialog" aria-modal="true">
@@ -425,10 +555,30 @@ body.child .grphead .gl{font-size:17px}
       <input id="fName" type="text" placeholder="e.g. Maths worksheet" maxlength="60">
     </div>
     <div class="field">
-      <label for="fAt">Usual time</label>
-      <input id="fAt" type="time" value="16:00">
+      <label>Picture</label>
+      <div class="iconrow" id="fIconRow"></div>
     </div>
-    <p class="hint">The list sorts itself by this time, so the day reads top to bottom.</p>
+    <div class="twocol">
+      <div class="field">
+        <label for="fAt">Starts at</label>
+        <input id="fAt" type="time" value="16:00">
+      </div>
+      <div class="field">
+        <label for="fEnd">Until (optional)</label>
+        <input id="fEnd" type="time">
+      </div>
+    </div>
+    <p class="hint">The list sorts itself by the start time. Add an end time for things that run in a slot, like football from 17:00 to 18:00.</p>
+    <div class="field">
+      <label>Which days?</label>
+      <div class="dayrow" id="fDayRow"></div>
+      <div class="quickdays">
+        <button type="button" data-days="1111111">Every day</button>
+        <button type="button" data-days="1111100">School days</button>
+        <button type="button" data-days="0000011">Weekend</button>
+        <button type="button" data-days="0000000">Clear</button>
+      </div>
+    </div>
     <div class="field">
       <label for="fType">How do you mark it?</label>
       <select id="fType">
@@ -514,6 +664,10 @@ body.child .grphead .gl{font-size:17px}
     <div class="field">
       <label for="fRiddle">Riddle after each tick (child mode)</label>
       <select id="fRiddle"><option value="1">On</option><option value="0">Off</option></select>
+    </div>
+    <div class="field">
+      <label for="fTimeAsk">Ask what time it was done (child mode)</label>
+      <select id="fTimeAsk"><option value="1">On</option><option value="0">Off</option></select>
     </div>
 
     <h2 style="margin-top:22px">Sync</h2>
@@ -675,20 +829,47 @@ function groupOf(it){
 }
 function defaultItems(){
   return [
-    {id:"fajr",     label:"Fajr",                       kind:"prayer",  type:"time",  at:"04:30", pri:"must"},
-    {id:"dhuhr",    label:"Dhuhr",                      kind:"prayer",  type:"time",  at:"11:30", pri:"must"},
-    {id:"asr",      label:"Asr",                        kind:"prayer",  type:"time",  at:"14:45", pri:"must"},
-    {id:"maghrib",  label:"Maghrib",                    kind:"prayer",  type:"time",  at:"17:30", pri:"must"},
-    {id:"isha",     label:"Isha",                       kind:"prayer",  type:"time",  at:"18:45", pri:"must"},
-    {id:"quran",    label:"Quran recital",              kind:"quran",   type:"time",  at:"17:45", pri:"must"},
+    {id:"fajr",     label:"Fajr",                       kind:"prayer",  type:"time",  at:"04:30", pri:"must", icon:"🌅"},
+    {id:"dhuhr",    label:"Dhuhr",                      kind:"prayer",  type:"time",  at:"11:30", pri:"must", icon:"☀️"},
+    {id:"asr",      label:"Asr",                        kind:"prayer",  type:"time",  at:"14:45", pri:"must", icon:"🌤️"},
+    {id:"maghrib",  label:"Maghrib",                    kind:"prayer",  type:"time",  at:"17:30", pri:"must", icon:"🌇"},
+    {id:"isha",     label:"Isha",                       kind:"prayer",  type:"time",  at:"18:45", pri:"must", icon:"🌙"},
+    {id:"quran",    label:"Quran recital",              kind:"quran",   type:"time",  at:"17:45", pri:"must", icon:"📖"},
     {id:"memorise", label:"Surah revision",             kind:"quran",   type:"check", at:"18:00", pri:"normal"},
-    {id:"dictation",label:"Dictation words repeated",   kind:"learning",type:"count", at:"16:30", pri:"must", target:3},
-    {id:"writing",  label:"Handwriting practice",       kind:"learning",type:"check", at:"17:00", pri:"must"},
-    {id:"reading",  label:"Story reading",              kind:"learning",type:"check", at:"19:30", pri:"normal"},
-    {id:"dress",    label:"Changed dress after school", kind:"routine", type:"check", at:"13:15", pri:"must"},
-    {id:"lunch",    label:"Lunch — rice and curry",     kind:"routine", type:"time",  at:"13:45", pri:"normal"}
+    {id:"dictation",label:"Dictation words repeated",   kind:"learning",type:"count", at:"16:30", pri:"must", target:3, days:"1111100", icon:"🔤"},
+    {id:"writing",  label:"Handwriting practice",       kind:"learning",type:"check", at:"17:00", pri:"must", days:"1111100"},
+    {id:"reading",  label:"Story reading",              kind:"learning",type:"check", at:"19:30", pri:"normal", icon:"📕"},
+    {id:"dress",    label:"Changed dress after school", kind:"routine", type:"check", at:"13:15", pri:"must", days:"1111100", icon:"👕"},
+    {id:"lunch",    label:"Lunch — rice and curry",     kind:"routine", type:"time",  at:"13:45", pri:"normal", icon:"🍽️"}
   ];
 }
+var ICONS = ["⭐","🕌","🌅","☀️","🌤️","🌇","🌙","📖","✏️","📕","🏠","🍽️","👕","🦷","🛏️",
+             "⚽","🏊","🚴","🎨","🎹","🧮","🔤","🧹","🧺","💧","🌿","🐾","🧩","🏅"];
+var PRAYER_ICONS = {fajr:"🌅", dhuhr:"☀️", asr:"🌤️", maghrib:"🌇", isha:"🌙"};
+function iconOf(it){ return it.icon || {prayer:"🕌",quran:"📖",learning:"✏️",routine:"🏠"}[it.kind] || "⭐"; }
+
+/* days is a 7-character string, index 0 = Sunday */
+function daysOf(it){
+  var d = it.days;
+  if(typeof d === "string" && d.length === 7){ return d; }
+  return "1111111";
+}
+function runsOn(it, dateIso){
+  return daysOf(it).charAt(fromIso(dateIso).getDay()) === "1";
+}
+function itemsForDay(dateIso){
+  return state.items.filter(function(x){ return runsOn(x, dateIso); });
+}
+function daysLabel(it){
+  var d = daysOf(it);
+  if(d === "1111111"){ return ""; }
+  if(d === "1111100"){ return "School days"; }
+  if(d === "0000011"){ return "Weekend"; }
+  var out = [];
+  for(var i=0;i<7;i++){ if(d.charAt(i) === "1"){ out.push(DAYNAMES[i]); } }
+  return out.length ? out.join(" · ") : "No days set";
+}
+
 function migrate(){
   var hasQuran = false, changed = false;
   for(var i=0;i<state.items.length;i++){
@@ -697,6 +878,8 @@ function migrate(){
       it.pri = (it.kind === "prayer" || it.kind === "quran") ? "must" : "normal";
       changed = true;
     }
+    if(typeof it.days !== "string" || it.days.length !== 7){ it.days = "1111111"; changed = true; }
+    if(!it.icon && PRAYER_ICONS[it.id]){ it.icon = PRAYER_ICONS[it.id]; changed = true; }
     if(it.kind === "quran"){ hasQuran = true; }
   }
   if(!hasQuran){
@@ -713,8 +896,8 @@ function pushItems(){
   try{ SYNC.root.child("items").set(map); }catch(e){}
 }
 function blank(){
-  return {version:2, child:"Afdhi", pin:"", riddleOn:true, items:defaultItems(), days:{},
-          riddles:{used:{}, solved:0}};
+  return {version:3, child:"Afdhi", pin:"", riddleOn:true, timeAskOn:true,
+          items:defaultItems(), days:{}, riddles:{used:{}, solved:0}};
 }
 var state;
 try{ state = JSON.parse(lsGet(KEY)) || blank(); }catch(e){ state = blank(); }
@@ -743,6 +926,7 @@ var MONTHS = ["January","February","March","April","May","June","July","August",
 var todayIso = iso(new Date());
 var selected = todayIso;
 var editMode = false;
+var nextUpId = null;
 var calCursor = todayIso.slice(0,7);
 var mode = lsGet("afdhi-mode") || "parent";
 
@@ -752,19 +936,21 @@ function dayRec(d){
   if(!state.days[d].marks){ state.days[d].marks = {}; }
   return state.days[d];
 }
-function sortedItems(){
-  return state.items.slice().sort(function(a,b){
+function sortItems(list){
+  return list.slice().sort(function(a,b){
     if(a.at === b.at){ return a.label.localeCompare(b.label); }
     return a.at < b.at ? -1 : 1;
   });
 }
+function sortedItems(){ return sortItems(state.items); }
+function sortedItemsFor(d){ return sortItems(itemsForDay(d)); }
 function isDone(item, mark){
   if(!mark){ return false; }
   if(item.type === "count"){ return (mark.n||0) >= (item.target||1); }
   return !!mark.done;
 }
 function score(d){
-  var rec = state.days[d], items = state.items;
+  var rec = state.days[d], items = itemsForDay(d);
   var done = 0, mustDone = 0, mustTotal = 0;
   for(var i=0;i<items.length;i++){
     var it = items[i];
@@ -779,10 +965,12 @@ function score(d){
   };
 }
 function streak(){
-  var n = 0, d = todayIso;
-  while(n < 400){
-    if(score(d).full){ n++; d = addDays(d,-1); }
-    else if(d === todayIso){ d = addDays(d,-1); }
+  var n = 0, d = todayIso, guard = 0;
+  while(guard++ < 400){
+    var s = score(d);
+    if(!s.total){ d = addDays(d,-1); continue; }   /* nothing scheduled — doesn't break it */
+    if(s.full){ n++; d = addDays(d,-1); }
+    else if(d === todayIso){ d = addDays(d,-1); }  /* today is still in progress */
     else { break; }
   }
   return n;
@@ -843,7 +1031,8 @@ function pushAll(){
   for(var i=0;i<state.items.length;i++){ items[state.items[i].id] = state.items[i]; }
   try{
     SYNC.root.set({
-      meta:{child:state.child, pin:state.pin || "", riddleOn: state.riddleOn ? 1 : 0},
+      meta:{child:state.child, pin:state.pin || "", riddleOn: state.riddleOn ? 1 : 0,
+            timeAskOn: (state.timeAskOn !== false) ? 1 : 0},
       items: items,
       days: state.days,
       progress:{used: state.riddles.used, solved: state.riddles.solved}
@@ -856,6 +1045,7 @@ function applyRemote(data){
     if(data.meta.child){ state.child = data.meta.child; }
     state.pin = data.meta.pin || "";
     state.riddleOn = data.meta.riddleOn ? true : false;
+    if(typeof data.meta.timeAskOn !== "undefined"){ state.timeAskOn = data.meta.timeAskOn ? true : false; }
   }
   if(data.items){
     var arr = [];
@@ -942,8 +1132,20 @@ function renderSky(pct){
 
 function renderTimeline(){
   var tl = document.getElementById("timeline");
-  var all = sortedItems(), rec = state.days[selected];
+  var all = sortedItemsFor(selected), rec = state.days[selected];
   var html = "";
+
+  if(!all.length){
+    tl.innerHTML = '<li class="grphead"><span class="gl">Nothing scheduled for ' +
+      DAYNAMES[fromIso(selected).getDay()] + "day</span></li>";
+    return;
+  }
+
+  /* the first unfinished item of the day gets the nudge in child mode */
+  nextUpId = null;
+  for(var n=0; n<all.length; n++){
+    if(!isDone(all[n], rec ? rec.marks[all[n].id] : null)){ nextUpId = all[n].id; break; }
+  }
 
   for(var g=0; g<GROUPS.length; g++){
     var grp = GROUPS[g];
@@ -964,7 +1166,6 @@ function renderTimeline(){
 
 function rowsFor(items, rec){
   var html = "";
-  var icons = {prayer:"🕌", quran:"📖", learning:"✏️", routine:"🏠"};
 
   for(var i=0;i<items.length;i++){
     var it = items[i];
@@ -974,9 +1175,10 @@ function rowsFor(items, rec){
     var sub = "";
     if(it.type === "count"){
       sub = '<span class="sub">' + ((mark && mark.n)||0) + " of " + (it.target||1) + " repeats</span>";
-    } else if(it.type === "time" && mark && mark.time && (editMode || mode === "child")){
+    } else if(mark && mark.time && (editMode || mode === "child")){
       sub = '<span class="sub">done at ' + esc(mark.time) + "</span>";
     }
+    if(it.end){ sub = '<span class="win">' + esc(it.at) + " – " + esc(it.end) + "</span>" + sub; }
 
     var extras = "";
     if(mode === "parent" && editMode){
@@ -989,13 +1191,18 @@ function rowsFor(items, rec){
       extras = '<span class="chip plain">' + ((mark && mark.n)||0) + "/" + (it.target||1) + "</span>";
     }
 
-    var face = mode === "child" ? (done ? "✓" : (icons[it.kind] || "⭐")) : (done ? "✓" : "");
+    var face = mode === "child" ? (done ? "✓" : iconOf(it)) : (done ? "✓" : "");
 
     var pill = "";
     if(it.pri === "must"){ pill = '<span class="pill p-must">' + (mode === "child" ? "★" : "Must") + "</span>"; }
     else if(it.pri === "bonus"){ pill = '<span class="pill p-bonus">Bonus</span>'; }
+    if(mode === "parent"){
+      var dl = daysLabel(it);
+      if(dl){ pill += '<span class="pill p-days">' + esc(dl) + "</span>"; }
+    }
 
-    html += '<li class="row ' + it.kind + " pri-" + (it.pri || "normal") + (done ? " done" : "") + '">' +
+    html += '<li class="row ' + it.kind + " pri-" + (it.pri || "normal") +
+              (done ? " done" : "") + (it.id === nextUpId ? " next" : "") + '">' +
               '<button class="hit" data-toggle="' + it.id + '">' +
                 '<span class="at">' + esc(it.at) + "</span>" +
                 '<span class="dot">' + face + "</span>" +
@@ -1092,8 +1299,178 @@ function toggleItem(id){
 
   var nowDone = isDone(item, m);
   var progressed = item.type === "count" ? (m.n||0) > 0 && !wasDone : nowDone && !wasDone;
-  if(mode === "child" && state.riddleOn && progressed){ showRiddle(); }
+  if(mode !== "child" || !progressed){ return; }
+
+  var reward = function(){
+    celebrate(function(){ if(state.riddleOn){ showRiddle(); } });
+  };
+  if(state.timeAskOn !== false && nowDone){ askTime(item, reward); }
+  else { reward(); }
 }
+
+/* ---------------- celebration ---------------- */
+var CELEB_WORDS = ["Nice one!","Well done!","Brilliant!","Masha Allah!","Great work!",
+                   "Yes!","Superb!","Good job!","That's it!","Excellent!"];
+var CELEB_KINDS = ["glitter","confetti","stars","bubbles","rings"];
+var celebBag = [];
+var lastWord = "";
+var celebTimer = null;
+
+function rnd(a,b){ return a + Math.random()*(b-a); }
+
+/* draw from a shuffled bag so all five styles appear before any repeats */
+function nextCelebKind(){
+  if(!celebBag.length){
+    celebBag = CELEB_KINDS.slice();
+    for(var i=celebBag.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1)), t = celebBag[i];
+      celebBag[i] = celebBag[j]; celebBag[j] = t;
+    }
+  }
+  return celebBag.pop();
+}
+
+function celebrate(done){
+  var box = document.getElementById("celeb");
+  if(!box){ if(done){ done(); } return; }
+  if(celebTimer){ clearTimeout(celebTimer); }
+
+  var kind = nextCelebKind();
+  box.setAttribute("data-kind", kind);
+  var word = CELEB_WORDS[Math.floor(Math.random()*CELEB_WORDS.length)];
+  while(word === lastWord && CELEB_WORDS.length > 1){
+    word = CELEB_WORDS[Math.floor(Math.random()*CELEB_WORDS.length)];
+  }
+  lastWord = word;
+
+  var gold = ["#F2A20C","#FFD166","#FFE9A8","#FFFFFF"];
+  var party = ["#F2A20C","#2C6E9B","#1F7A54","#6D3FA8","#E8533F","#FFD166"];
+  var html = '<span class="word">' + esc(word) + "</span>";
+  var i, st;
+
+  if(kind === "glitter" || kind === "confetti"){
+    var pal = kind === "glitter" ? gold : party;
+    for(i=0;i<46;i++){
+      var w = kind === "glitter" ? rnd(4,9) : rnd(7,13);
+      var h = kind === "glitter" ? w : w * rnd(.45,.8);
+      st = "left:" + rnd(0,100).toFixed(1) + "%;top:0;width:" + w.toFixed(1) + "px;height:" +
+           h.toFixed(1) + "px;background:" + pal[i % pal.length] + ";" +
+           "border-radius:" + (kind === "glitter" ? "50%" : "2px") + ";" +
+           "--dx:" + rnd(-70,70).toFixed(0) + "px;--rot:" + rnd(240,900).toFixed(0) + "deg;" +
+           "animation:cfall " + rnd(1.1,2.0).toFixed(2) + "s " + rnd(0,.5).toFixed(2) +
+           "s cubic-bezier(.3,.1,.5,1) forwards;" +
+           (kind === "glitter" ? "box-shadow:0 0 7px " + pal[i % pal.length] + ";" : "");
+      html += '<i style="' + st + '"></i>';
+    }
+  } else if(kind === "stars"){
+    for(i=0;i<26;i++){
+      var ang = (Math.PI * 2 * i) / 26 + rnd(-.12,.12);
+      var dist = rnd(120,330);
+      st = "left:50%;top:38%;font-size:" + rnd(13,26).toFixed(0) + "px;line-height:1;" +
+           "--dx:" + (Math.cos(ang)*dist).toFixed(0) + "px;--dy:" + (Math.sin(ang)*dist).toFixed(0) + "px;" +
+           "--sc:" + rnd(.7,1.5).toFixed(2) + ";" +
+           "animation:cburst " + rnd(.9,1.5).toFixed(2) + "s " + rnd(0,.25).toFixed(2) +
+           "s cubic-bezier(.15,.7,.4,1) forwards;";
+      html += '<i style="' + st + '">' + (i % 3 === 0 ? "✨" : (i % 3 === 1 ? "⭐" : "🌟")) + "</i>";
+    }
+  } else if(kind === "bubbles"){
+    for(i=0;i<30;i++){
+      var d = rnd(12,40);
+      st = "left:" + rnd(2,98).toFixed(1) + "%;bottom:0;width:" + d.toFixed(0) + "px;height:" +
+           d.toFixed(0) + "px;border-radius:50%;background:radial-gradient(circle at 32% 30%," +
+           "rgba(255,255,255,.95),rgba(242,162,12,.55) 60%,rgba(242,162,12,.15));" +
+           "--dx:" + rnd(-50,50).toFixed(0) + "px;" +
+           "animation:crise " + rnd(1.2,2.1).toFixed(2) + "s " + rnd(0,.6).toFixed(2) + "s ease-out forwards;";
+      html += '<i style="' + st + '"></i>';
+    }
+  } else {
+    for(i=0;i<6;i++){
+      var sz = 90 + i*26;
+      st = "left:50%;top:38%;width:" + sz + "px;height:" + sz + "px;margin:0;border-radius:50%;" +
+           "border:5px solid " + gold[i % gold.length] + ";" +
+           "animation:cring " + rnd(1.0,1.5).toFixed(2) + "s " + (i*0.11).toFixed(2) + "s ease-out forwards;";
+      html += '<i style="' + st + '"></i>';
+    }
+    for(i=0;i<18;i++){
+      var a2 = rnd(0, Math.PI*2), d2 = rnd(90,260);
+      st = "left:50%;top:38%;width:9px;height:9px;border-radius:50%;background:" + gold[i % gold.length] + ";" +
+           "--dx:" + (Math.cos(a2)*d2).toFixed(0) + "px;--dy:" + (Math.sin(a2)*d2).toFixed(0) + "px;" +
+           "animation:cburst 1.15s ease-out forwards;";
+      html += '<i style="' + st + '"></i>';
+    }
+  }
+
+  box.innerHTML = html;
+  box.classList.add("on");
+  celebTimer = setTimeout(function(){
+    box.classList.remove("on");
+    box.innerHTML = "";
+    if(done){ done(); }
+  }, 1500);
+}
+
+/* ---------------- when did you do it ---------------- */
+var twItemId = null, twTime = "", twThen = null;
+var timeOv = document.getElementById("timeOv");
+
+function twSet(hm){
+  twTime = hm;
+  document.getElementById("twBig").textContent = hm;
+  document.getElementById("twExact").value = hm;
+  var mins = minutesBetween(nowHM(), hm);
+  var sub;
+  if(selected !== todayIso){ sub = "on " + ddmmyyyy(selected); }
+  else if(hmToMin(hm) > hmToMin(nowHM())){ sub = "later today"; }
+  else if(mins <= 1){ sub = "right now"; }
+  else if(mins < 60){ sub = mins + " minutes ago"; }
+  else if(mins < 150){ sub = Math.round(mins/60) + " hour" + (mins < 90 ? "" : "s") + " ago"; }
+  else if(hmToMin(hm) < 12*60){ sub = "this morning"; }
+  else if(hmToMin(hm) < 17*60){ sub = "this afternoon"; }
+  else { sub = "this evening"; }
+  document.getElementById("twSub").textContent = sub;
+}
+function hmToMin(hm){ var p = String(hm).split(":"); return (+p[0])*60 + (+p[1]); }
+function minToHm(m){
+  m = ((m % 1440) + 1440) % 1440;
+  var h = Math.floor(m/60), mm = m % 60;
+  return (h<10?"0":"")+h + ":" + (mm<10?"0":"")+mm;
+}
+function minutesBetween(a, b){ return Math.max(0, hmToMin(a) - hmToMin(b)); }
+
+function askTime(item, then){
+  twItemId = item.id;
+  twThen = then || null;
+  document.getElementById("twIcon").textContent = iconOf(item);
+  document.getElementById("twName").textContent = item.label;
+  var mark = dayRec(selected).marks[item.id] || {};
+  twSet(mark.time || (selected === todayIso ? nowHM() : item.at));
+  timeOv.classList.add("open");
+}
+function twClose(save){
+  timeOv.classList.remove("open");
+  if(save && twItemId){
+    var m = dayRec(selected).marks[twItemId] || {};
+    m.time = twTime;
+    dayRec(selected).marks[twItemId] = m;
+    push("days/"+selected+"/marks/"+twItemId, m);
+    saveLocal(); render();
+  }
+  twItemId = null;
+  var then = twThen; twThen = null;
+  if(then){ then(); }
+}
+document.querySelector(".tw-offs").addEventListener("click", function(ev){
+  var b = ev.target.closest("[data-off]");
+  if(!b){ return; }
+  var off = parseInt(b.getAttribute("data-off"), 10);
+  var base = selected === todayIso ? nowHM() : twTime;
+  twSet(off === 0 ? base : minToHm(hmToMin(base) + off));
+});
+document.getElementById("twExact").addEventListener("change", function(e){
+  if(e.target.value){ twSet(e.target.value); }
+});
+document.getElementById("twSave").onclick = function(){ twClose(true); };
+document.getElementById("twSkip").onclick = function(){ twClose(false); };
 
 /* ---------------- riddles ---------------- */
 var curRiddle = -1;
@@ -1194,12 +1571,53 @@ document.getElementById("dayNote").addEventListener("input", function(e){
 /* ---------------- item add / edit ---------------- */
 var editingId = null;
 var itemOv = document.getElementById("itemOv");
+var pickDays = "1111111", pickIcon = "";
+
+function paintDays(){
+  var row = document.getElementById("fDayRow"), html = "";
+  for(var i=0;i<7;i++){
+    html += '<button type="button" class="daybtn' + (pickDays.charAt(i) === "1" ? " on" : "") +
+            '" data-d="' + i + '">' + DAYNAMES[i].charAt(0) + DAYNAMES[i].charAt(1).toLowerCase() + "</button>";
+  }
+  row.innerHTML = html;
+}
+function paintIcons(){
+  var row = document.getElementById("fIconRow"), html = "";
+  for(var i=0;i<ICONS.length;i++){
+    html += '<button type="button" class="icobtn' + (ICONS[i] === pickIcon ? " on" : "") +
+            '" data-i="' + i + '">' + ICONS[i] + "</button>";
+  }
+  row.innerHTML = html;
+}
+document.getElementById("fDayRow").addEventListener("click", function(ev){
+  var b = ev.target.closest("[data-d]");
+  if(!b){ return; }
+  var i = +b.getAttribute("data-d");
+  pickDays = pickDays.substring(0,i) + (pickDays.charAt(i) === "1" ? "0" : "1") + pickDays.substring(i+1);
+  paintDays();
+});
+document.querySelector(".quickdays").addEventListener("click", function(ev){
+  var b = ev.target.closest("[data-days]");
+  if(b){ pickDays = b.getAttribute("data-days"); paintDays(); }
+});
+document.getElementById("fIconRow").addEventListener("click", function(ev){
+  var b = ev.target.closest("[data-i]");
+  if(!b){ return; }
+  var v = ICONS[+b.getAttribute("data-i")];
+  pickIcon = (pickIcon === v) ? "" : v;
+  paintIcons();
+});
+
 function openItem(id){
   editingId = id || null;
   var it = id ? state.items.filter(function(x){ return x.id === id; })[0] : null;
   document.getElementById("itemTitle").textContent = it ? "Edit item" : "Add something to track";
   document.getElementById("fName").value = it ? it.label : "";
   document.getElementById("fAt").value = it ? it.at : "16:00";
+  document.getElementById("fEnd").value = (it && it.end) ? it.end : "";
+  pickDays = it ? daysOf(it) : "1111111";
+  pickIcon = (it && it.icon) ? it.icon : "";
+  paintDays(); paintIcons();
   document.getElementById("fType").value = it ? it.type : "check";
   document.getElementById("fKind").value = it ? it.kind : "routine";
   document.getElementById("fPri").value = (it && it.pri) ? it.pri : "must";
@@ -1228,14 +1646,22 @@ document.getElementById("itemDelete").onclick = function(){
 document.getElementById("itemSave").onclick = function(){
   var name = document.getElementById("fName").value.trim();
   if(!name){ window.alert("Give it a name first."); return; }
+  if(pickDays.indexOf("1") === -1){
+    window.alert("Pick at least one day, or the item never appears.");
+    return;
+  }
   var it = {
     id: editingId || ("i" + Date.now().toString(36)),
     label: name,
     at: document.getElementById("fAt").value || "16:00",
     type: document.getElementById("fType").value,
     kind: document.getElementById("fKind").value,
-    pri: document.getElementById("fPri").value
+    pri: document.getElementById("fPri").value,
+    days: pickDays
   };
+  var endV = document.getElementById("fEnd").value;
+  if(endV && endV !== it.at){ it.end = endV; }
+  if(pickIcon){ it.icon = pickIcon; }
   if(it.type === "count"){ it.target = parseInt(document.getElementById("fTarget").value,10) || 3; }
   if(editingId){
     for(var i=0;i<state.items.length;i++){ if(state.items[i].id === editingId){ state.items[i] = it; } }
@@ -1291,6 +1717,7 @@ var dataOv = document.getElementById("dataOv");
 document.getElementById("dataBtn").onclick = function(){
   document.getElementById("fChild").value = state.child;
   document.getElementById("fRiddle").value = state.riddleOn ? "1" : "0";
+  document.getElementById("fTimeAsk").value = (state.timeAskOn !== false) ? "1" : "0";
   document.getElementById("fFam").value = syncFam();
   var cfg = lsGet("afdhi-fbcfg");
   document.getElementById("fCfg").value = cfg || "";
@@ -1306,6 +1733,8 @@ document.getElementById("dataClose").onclick = function(){
   if(n && n !== state.child){ state.child = n; push("meta/child", n); }
   var r = document.getElementById("fRiddle").value === "1";
   if(r !== state.riddleOn){ state.riddleOn = r; push("meta/riddleOn", r ? 1 : 0); }
+  var ta = document.getElementById("fTimeAsk").value === "1";
+  if(ta !== (state.timeAskOn !== false)){ state.timeAskOn = ta; push("meta/timeAskOn", ta ? 1 : 0); }
   saveLocal(); dataOv.classList.remove("open"); render();
 };
 function parseCfg(raw){
@@ -1407,15 +1836,20 @@ function setPage(orient){
   st.textContent = "@page{size:A4 " + orient + ";margin:12mm}";
 }
 function cellFor(it, d){
+  if(!runsOn(it, d)){ return {off:true, html:'<span class="off">·</span>'}; }
   var rec = state.days[d];
   var mark = rec ? rec.marks[it.id] : null;
+  var h;
   if(!isDone(it, mark)){
-    if(it.type === "count" && mark && mark.n){ return '<span class="no">' + mark.n + "/" + (it.target||1) + "</span>"; }
-    return '<span class="no">–</span>';
+    if(it.type === "count" && mark && mark.n){ h = '<span class="no">' + mark.n + "/" + (it.target||1) + "</span>"; }
+    else { h = '<span class="no">–</span>'; }
+    return {off:false, html:h};
   }
-  if(it.type === "time" && mark.time){ return '<span class="yes">' + esc(mark.time) + "</span>"; }
-  if(it.type === "count"){ return '<span class="yes">' + mark.n + "/" + (it.target||1) + "</span>"; }
-  return '<span class="yes">✓</span>';
+  if(it.type === "count"){ h = '<span class="yes">' + mark.n + "/" + (it.target||1) + "</span>"; }
+  else if(mark.time && rMode === "week"){ h = '<span class="yes">' + esc(mark.time) + "</span>"; }
+  else if(it.type === "time" && mark.time){ h = '<span class="yes">' + esc(mark.time) + "</span>"; }
+  else { h = '<span class="yes">✓</span>'; }
+  return {off:false, html:h};
 }
 function groupedItems(){
   var all = sortedItems(), out = [];
@@ -1426,12 +1860,14 @@ function groupedItems(){
   return out;
 }
 function doneCount(it, days){
-  var n = 0;
+  var n = 0, sched = 0;
   for(var i=0;i<days.length;i++){
+    if(!runsOn(it, days[i])){ continue; }
+    sched++;
     var rec = state.days[days[i]];
     if(rec && isDone(it, rec.marks[it.id])){ n++; }
   }
-  return n;
+  return {done:n, of:sched};
 }
 
 function renderReport(){
@@ -1471,10 +1907,17 @@ function renderReport(){
             groups[gi].group.icon + " " + groups[gi].group.label + "</td></tr>";
     for(var ii=0; ii<groups[gi].items.length; ii++){
       var it = groups[gi].items[ii];
+      var dc = doneCount(it, days);
+      if(!dc.of){ continue; }
       var tag = it.pri === "must" ? " ★" : (it.pri === "bonus" ? " (bonus)" : "");
-      body += '<tr><td class="item">' + esc(it.label) + tag + "</td>";
-      for(var dd=0; dd<days.length; dd++){ body += "<td>" + cellFor(it, days[dd]) + "</td>"; }
-      body += "<td>" + doneCount(it, days) + "/" + days.length + "</td></tr>";
+      var dl = daysLabel(it);
+      body += '<tr><td class="item">' + esc(it.label) + tag +
+              (dl ? ' <span class="off">(' + esc(dl) + ")</span>" : "") + "</td>";
+      for(var dd=0; dd<days.length; dd++){
+        var c = cellFor(it, days[dd]);
+        body += '<td' + (c.off ? ' class="offcell"' : "") + ">" + c.html + "</td>";
+      }
+      body += "<td>" + dc.done + "/" + dc.of + "</td></tr>";
     }
   }
 
